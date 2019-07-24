@@ -25,6 +25,9 @@ export class Api {
     /** Hook after execute api request */
     afterFetch: Function[] = [];
 
+    /** Login state, null mean unchecked */
+    private _isLogin: boolean | null = null;
+
     /** Extend any propery via config */
     constructor(options?: { [field in keyof Api]: any }) {
         options && Object.keys(options).forEach(
@@ -42,37 +45,59 @@ export class Api {
         return Vue.prototype.$api = window.$api = new Api(options);
     }
 
-    /**
-     * Check if have passcode
-     */
-    hasPasscode(): boolean {
-        return (localStorage as Object).hasOwnProperty('passcode') && localStorage['passcode'] != null;
+    getQuickcount() {
+        return this.sendGet('/admin/quickcount')
+    }
+
+    addQuickcount(data) {
+        return this.send('PUT', '/admin/quickcount', data);
+    }
+
+    patchQuickcount(index, data) {
+        return this.send('PATCH', `/admin/quickcount/${index}`, data);
     }
 
     /**
-     * Get saved passcode
+     * Upload file to server
+     * @param file Input file to upload
      */
-    setPasscode(v: string | null) {
-        localStorage['passcode'] = this.passcode = v;
+    fileUpload(file: File): Promise<{ size: number, url: string }> {
+        return this.send('PUT', `admin/upload/${file.name}`, file);
     }
 
     /**
-     * Get saved passcode
+     * Check login state
      */
-    getPasscode(): string {
-        return localStorage.getItem('passcode') as string;
-    }
-
-    getVoteList() {
-
+    async isLogin(): Promise<boolean> {
+        if (typeof (this._isLogin) != 'boolean') {
+            console.log('Login Check');
+            if (typeof (localStorage.passcode) != undefined) {
+                return this.adminLogin(localStorage.passcode);
+            } else {
+                console.log('No passcode to check');
+                return this._isLogin = false;
+            }
+        } else return this._isLogin;
     }
 
     /**
      * Login admin using passcode
      * @param passcode @type {String}
      */
-    adminLogin(passcode: string) {
-        return this.send('POST', 'admin', { passcode })
+    adminLogin(passcode: string): Promise<boolean> {
+        return this.send('POST', 'admin', { passcode }).then(
+            res => {
+                if (res && res.valid) {
+                    // Set passcode
+                    this.passcode = localStorage.passcode = passcode;
+                    return this._isLogin = true;
+                } else {
+                    localStorage.removeItem('passcode');
+                    this.passcode = null;
+                    return this._isLogin = false;
+                }
+            }
+        )
     }
 
     /**
@@ -126,7 +151,7 @@ export class Api {
         }
 
         if (this.passcode) {
-            headers.append('Authorization', `Passcode  ${this.passcode}`)
+            headers.append('Authorization', `Passcode ${this.passcode}`)
         }
 
         return fetch(requestUrl, init).finally(() => this.afterFetch.forEach(v => v())).then(

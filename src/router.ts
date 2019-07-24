@@ -4,7 +4,7 @@ import Home from './views/Home.vue'
 
 Vue.use(Router)
 
-export default new Router({
+const router = new Router({
   mode: 'history',
   base: process.env.BASE_URL,
   routes: [
@@ -24,7 +24,7 @@ export default new Router({
       children: [
         {
           path: '',
-          name: 'admin',
+          name: 'admin-login',
           component: () => import(/* webpackChunkName: "admin" */ './views/admin/Login.vue'),
         },
         {
@@ -36,3 +36,29 @@ export default new Router({
     }
   ]
 })
+
+router.beforeEach((to, from, next) => {
+  console.log("Router Check", to.name, to.path, to.fullPath);
+
+  if (to.fullPath.match(/^\/admin/)) {
+    $api.isLogin().then(login => {
+      console.log('Login state', login);
+      
+        if( to.name == 'admin-login' ){
+          if( login ){
+            console.log('In login page but is logged in');
+            return next({name: 'admin-dash'})
+          }
+        }else{
+          if(!login){
+            return next({name: 'admin-login'})
+          }
+        }
+        return next();
+    })
+  } else {
+    return next()
+  }
+})
+
+export default router;

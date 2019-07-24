@@ -5,12 +5,15 @@
 module.exports = {
     devServer: {
         proxy: {
-            '^/api/': {
+            '/api/': {
+                target: 'http://localhost:8888/'
+            },
+            '/public/': {
+                target: 'http://localhost:8888/'
+            },
+            '/api/voter': {
                 target: 'http://localhost:8888/',
-                ws: true, // proxy websockets
-                pathRewrite: {
-                    '^/api/': '/'
-                }
+                ws: true
             }
         }
     }
