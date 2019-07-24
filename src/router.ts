@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from './views/Home.vue'
+import About from './views/About.vue'
 
 Vue.use(Router)
 
@@ -16,7 +17,23 @@ const router = new Router({
     {
       path: '/about',
       name: 'about',
-      component: () => import(/* webpackChunkName: "about" */ './views/About.vue')
+      component: About
+    },
+    {
+      path: '/voter',
+      component: () => import(/* webpackChunkName: "voter" */ './views/Admin'),
+      children: [
+        {
+          path: '',
+          name: 'voter-login',
+          component: () => import(/* webpackChunkName: "voter" */ './views/voter/Login.vue'),
+        },
+        {
+          path: 'dash/:id',
+          name: 'voter-dash',
+          component: () => import(/* webpackChunkName: "voter" */ './views/voter/Dash.vue'),
+        }
+      ]
     },
     {
       path: '/admin',

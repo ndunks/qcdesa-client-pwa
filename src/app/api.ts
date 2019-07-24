@@ -48,7 +48,11 @@ export class Api {
      * Get list of quick count
      */
     listQuickcount(){
-        return this.sendGet('/list');
+        // Cached in localStorage
+        return this.sendGet('/list').then( list => localStorage['list'] = list);
+    }
+    voterCheck(id, passcode){
+        return this.send('POST', 'voter/check', {id, passcode });
     }
 
     adminListQuickcount() {
