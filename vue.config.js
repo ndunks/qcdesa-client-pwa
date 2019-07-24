@@ -1,0 +1,13 @@
+/**
+ * Add proxy request to API Server
+ */
+
+ module.exports = {
+     devServer: {
+         proxy: {
+             '^/api': {
+                 target: 'http://localhost:8888/'
+             }
+         }
+     }
+ }
