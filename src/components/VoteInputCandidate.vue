@@ -95,7 +95,7 @@ export default class VoteInputCandidate extends Vue {
       return;
     }
     this.uploading = true;
-    this.$api.fileUpload(file).then(
+    this.$api.adminUpload(file).then(
       res => {
         this.$emit('change', 'image', this.uploadedImage = res.url);
       }

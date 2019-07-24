@@ -38,13 +38,13 @@ export default class AdminDash extends Vue {
   }
 
   mounted() {
-    this.$api.getQuickcount().then(list => this.list = list)
+    this.$api.adminListQuickcount().then(list => this.list = list)
   }
   save(changed) {
     console.log('Save ', changed);
     if (this.selectedIndex >= 0) {
       // Patch
-      this.$api.patchQuickcount(this.selectedIndex, changed).then(
+      this.$api.adminPatchQuickcount(this.selectedIndex, changed).then(
         () => {
           const item = this.selected;
           for (let field in changed) {
@@ -53,7 +53,7 @@ export default class AdminDash extends Vue {
         }
       ).catch(err => alert(err.message)).finally( () => this.selectedIndex = -1 );
     } else {
-      this.$api.addQuickcount(changed).then(
+      this.$api.adminAddQuickcount(changed).then(
         () => this.list.push(changed)
       ).catch(err => alert(err.message));
     }

@@ -13,7 +13,7 @@ export class Api {
      */
     url: string = `${location.protocol}//${location.host}/api`;
 
-    /** Valid admin passcode to access */
+    /** Valid passcode to access */
     passcode: string | null
 
     /** Default header that will appended on each request */
@@ -44,16 +44,22 @@ export class Api {
     static install(Vue: VueConstructor, options: { [field in keyof Api]: any }): Api {
         return Vue.prototype.$api = window.$api = new Api(options);
     }
+    /**
+     * Get list of quick count
+     */
+    listQuickcount(){
+        return this.sendGet('/list');
+    }
 
-    getQuickcount() {
+    adminListQuickcount() {
         return this.sendGet('/admin/quickcount')
     }
 
-    addQuickcount(data) {
+    adminAddQuickcount(data) {
         return this.send('PUT', '/admin/quickcount', data);
     }
 
-    patchQuickcount(index, data) {
+    adminPatchQuickcount(index, data) {
         return this.send('PATCH', `/admin/quickcount/${index}`, data);
     }
 
@@ -61,7 +67,7 @@ export class Api {
      * Upload file to server
      * @param file Input file to upload
      */
-    fileUpload(file: File): Promise<{ size: number, url: string }> {
+    adminUpload(file: File): Promise<{ size: number, url: string }> {
         return this.send('PUT', `admin/upload/${file.name}`, file);
     }
 
