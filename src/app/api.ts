@@ -14,7 +14,7 @@ export class Api {
     url: string = `${location.protocol}//${location.host}/api`;
 
     /** Valid admin passcode to access */
-    passcode: string
+    passcode: string | null
 
     /** Default header that will appended on each request */
     defaultHeaders: { [$key: string]: string } = {}
@@ -31,8 +31,8 @@ export class Api {
             k => (this as any)[k] = options[k]
         );
         // Auto display loading bar when fetching data
-        this.beforeFetch.push( () => loading.counter++ )
-        this.afterFetch.push( () => loading.counter-- )
+        this.beforeFetch.push(() => loading.counter++)
+        this.afterFetch.push(() => loading.counter--)
     }
 
     /**
@@ -52,7 +52,7 @@ export class Api {
     /**
      * Get saved passcode
      */
-    setPasscode(v: string) {
+    setPasscode(v: string | null) {
         localStorage['passcode'] = this.passcode = v;
     }
 
@@ -61,6 +61,18 @@ export class Api {
      */
     getPasscode(): string {
         return localStorage.getItem('passcode') as string;
+    }
+
+    getVoteList() {
+
+    }
+
+    /**
+     * Login admin using passcode
+     * @param passcode @type {String}
+     */
+    adminLogin(passcode: string) {
+        return this.send('POST', 'admin', { passcode })
     }
 
     /**

@@ -32,18 +32,29 @@ import { Component, Vue } from "vue-property-decorator";
 export default class AdminLogin extends Vue {
   passcode = '';
   mounted() {
-
+    // TODO: this must be handle by router
+    if( this.$api.hasPasscode() ){
+      this.passcode = this.$api.getPasscode();
+      this.submit().then( 
+        valid => {
+          if(!valid){
+            this.$api.setPasscode(null);
+          }
+        }
+      );
+    }
   }
   submit() {
-    console.log('Checkpasscode', this.passcode);
-    this.$api.send('POST', 'admin', {passcode : this.passcode })
+    return this.$api.adminLogin(this.passcode)
     .then( res => {
       if( res.valid ){
         this.$api.setPasscode( this.passcode );
+        this.$router.replace('/admin/dash');
       }else{
         alert('Invalid Passcode')
       }
-    }).catch( alert )
+      return res.valid;
+    }).catch( err => alert(err.message) )
   }
 }
 </script>

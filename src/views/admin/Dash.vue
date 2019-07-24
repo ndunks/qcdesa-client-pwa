@@ -14,8 +14,5 @@ export default class AdminDash extends Vue {
   mounted() {
 
   }
-  submit(){
-    
-  }
 }
 </script>
