@@ -20,8 +20,19 @@ export default new Router({
     },
     {
       path: '/admin',
-      name: 'admin',
-      component: () => import(/* webpackChunkName: "admin" */ './views/Admin.vue')
+      component: () => import(/* webpackChunkName: "admin" */ './views/Admin'),
+      children: [
+        {
+          path: '',
+          name: 'admin',
+          component: () => import(/* webpackChunkName: "admin" */ './views/admin/Login.vue'),
+        },
+        {
+          path: 'dash',
+          name: 'admin-dash',
+          component: () => import(/* webpackChunkName: "admin" */ './views/admin/Dash.vue'),
+        }
+      ]
     }
   ]
 })
