@@ -2,8 +2,10 @@ import Vue from 'vue'
 import { VApp, VContent } from 'vuetify/lib';
 import router from './router'
 import vuetify from './plugins/vuetify';
+import { Api } from './app/api';
 
 Vue.config.productionTip = false
+Vue.use(Api)
 
 new Vue({
   router,

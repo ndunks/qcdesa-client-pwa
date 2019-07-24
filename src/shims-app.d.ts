@@ -1,3 +1,5 @@
+import { Api } from "./app/api";
+
 /**
  * Preloading controller
  * * Increase counter to display loading bar on top
@@ -24,12 +26,29 @@ interface AppLoading {
 }
 
 declare global {
-    /**
-     * Access loading object every where
-     */
-    const loading: AppLoading
-    interface Window {
-        loading: AppLoading
-    }
+  /**
+   * Access loading object every where
+   */
+  const loading: AppLoading
+
+  /**
+  * Access Api every where
+  */
+  const $api: Api
+
+  interface Window {
+    loading: AppLoading
+    $api: Api
+  }
 }
-export {}
+
+declare module 'vue/types/vue' {
+
+  interface Vue {
+    $api: Api
+  }
+
+  interface VueConstructor<V extends Vue = Vue> {
+    use(plugin: typeof Api, options: { [field in keyof Api]?: any })
+  }
+}
