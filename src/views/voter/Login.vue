@@ -45,6 +45,9 @@ export default class VoterLogin extends Vue {
   passcode = '';
   selectedIndex = -1;
   created() {
+    if( typeof(window['WebSocket']) != 'function' ){
+      alert('Perangkat anda tidak mendukung');
+    }
     this.$api.listQuickcount().then(list => this.list = list)
   }
 

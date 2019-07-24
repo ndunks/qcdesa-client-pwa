@@ -1,20 +1,15 @@
 <template>
-  <v-container fluid fill-height>
-    <v-layout align-center justify-center>
-      <v-flex xs12 sm6 md4>
-        <v-card class="elevation-12">
-          <v-toolbar>
-            <v-toolbar-title>Vote List</v-toolbar-title>
-
-            <v-spacer></v-spacer>
-            <VoteAddDialog @save="save" @click="selectedIndex = -1" v-bind="selected" />
-          </v-toolbar>
-          <v-list-item v-for="(item, index) of list" :key="index">
-            <v-list-item-content @click="selectedIndex = index">
-              <v-list-item-title>{{item.name}}</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </v-card>
+  <v-container grid-list-md>
+    <v-layout wrap>
+      <v-flex v-for="(item, index) of list" :key="index" xs12 md4>
+        <v-sheet
+          color="primary"
+          v-ripple
+          class="d-flex align-center pa-3"
+          height="200"
+        >
+          <div class="title">{{ item.name }}</div>
+        </v-sheet>
       </v-flex>
     </v-layout>
   </v-container>
@@ -30,11 +25,50 @@ import VoteAddDialog from "@/components/VoteAddDialog.vue";
 })
 export default class AdminDash extends Vue {
   id: number = -1;
-  item = null;
+  data: any = {};
+  get list() {
+    return this.data.candidates || [];
+  }
+  _ws = null;
+  $data: {
+    _ws: WebSocket
+  }
 
   mounted() {
-    this.id = parseInt( this.$route.params['id'] );
-    this.$api.listQuickcount().then(list => this.item = list[this.id]);
+    if (typeof (window['WebSocket']) != 'function') {
+      alert('Perangkat anda tidak mendukung');
+      return;
+    }
+    this.id = parseInt(this.$route.params['id']);
+    this.$api.listQuickcount().then(list => {
+      if (list[this.id]) {
+        this.data = list[this.id];
+        this.connectWs()
+      } else {
+        this.$router.replace('/voter')
+      }
+    })
+  }
+
+  vote(index) {
+
+  }
+  connectWs() {
+    const passcode = localStorage[`voter_${this.id}`] || '';
+    const baseUrl = this.$api.url.replace(/^http(s)?/, 'ws$1');
+    const ws = new WebSocket(`${baseUrl}/voter/voting/${this.id}`, passcode || undefined)
+    ws.onopen = (e: Event) => {
+      console.log('WS OPENED', e);
+    }
+    ws.onclose = (e: Event) => {
+      console.log('WS CLOSED', e);
+    }
+    ws.onmessage = (e) => {
+      console.log('WS MESG', e);
+    }
+    ws.onerror = (e) => {
+      console.log('WS ERR', e);
+    }
   }
 }
 </script>
