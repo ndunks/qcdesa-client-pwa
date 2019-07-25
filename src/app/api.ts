@@ -27,6 +27,7 @@ export class Api {
 
     /** Login state, null mean unchecked */
     private _isLogin: boolean | null = null;
+    private _cache: { [url: string]: any } = {};
 
     /** Extend any propery via config */
     constructor(options?: { [field in keyof Api]: any }) {
@@ -47,12 +48,14 @@ export class Api {
     /**
      * Get list of quick count
      */
-    listQuickcount(){
-        // Cached in localStorage
-        return this.sendGet('/public/data.json').then( list => localStorage['list'] = list);
+    listQuickcount() {
+        // Cached in local memory
+        return this._cache['data.json'] ?
+            Promise.resolve(this._cache['data.json']) :
+            this.sendGet('/public/data.json').then(list => this._cache['data.json'] = list);
     }
-    voterCheck(id, passcode){
-        return this.send('POST', 'voter/check', {id, passcode });
+    voterCheck(id, passcode) {
+        return this.send('POST', 'voter/check', { id, passcode });
     }
 
     adminListQuickcount() {

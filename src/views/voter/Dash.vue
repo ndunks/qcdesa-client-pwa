@@ -1,5 +1,5 @@
 <template>
-  <v-container grid-list-md>
+  <v-container grid-list-md style="user-select: none">
     <v-layout v-if="connected && results" wrap>
       <v-flex v-for="(item, index) of results" :key="index" xs12 md4>
         <v-sheet
@@ -13,6 +13,19 @@
           <div class="count">{{ item.count }}</div>
         </v-sheet>
       </v-flex>
+      <v-flex xs12 md4>
+        <v-sheet
+          color="warning"
+          v-ripple
+          class="d-flex align-center pa-3"
+          height="200"
+          @click="vote(-1)"
+        >
+          <div class="title">TIDAK SAH</div>
+          <div class="count">{{ declined }}</div>
+        </v-sheet>
+      </v-flex>
+
       <v-flex xs12>
         <v-btn color="error" large outlined @click="selesai()">
           SELESAI
@@ -22,8 +35,10 @@
     <v-layout v-else align-center justify-center>
       <v-flex xs12 md4>
         <v-sheet
+          dark
           :color="status == 'Not Connected' ? 'error' : 'orange'"
-          height="200" class="text-center pa-3 elevation-3"
+          height="200"
+          class="text-center pa-3 elevation-3"
         >
           <h1 class="title">{{ status }}</h1>
         </v-sheet>
@@ -44,10 +59,23 @@ import { setTimeout } from 'timers';
 export default class AdminDash extends Vue {
   id: number = -1;
   data: any = {};
-  resultData: any = null;
+  resultData: {
+    started: number,
+    // Total pemilih
+    participant: number,
+    updated?: number,
+    finished?: number,
+    accepted: number,
+    declined: number,
+    total: number,
+    results: number[]
+  } = null as any;
   isFinished = false;
   results: any[] = [];
 
+  get declined(){
+    return this.resultData ? this.resultData.declined : '?';
+  }
   get list() {
     return this.data.candidates || [];
   }
@@ -89,10 +117,10 @@ export default class AdminDash extends Vue {
     this.$data._vote.setInt8(1, add)
     this.wsSend(this.$data._vote.buffer);
   }
-  selesai(){
-    if( confirm('Anda yakin?') ){
-      setTimeout( () => {
-        if(confirm('Jika ini dinyatakan selesai, maka anda tidak bisa membatalkannya. Yakin Sudah Selesai?')){
+  selesai() {
+    if (confirm('Anda yakin?')) {
+      setTimeout(() => {
+        if (confirm('Jika ini dinyatakan selesai, maka anda tidak bisa membatalkannya. Yakin Sudah Selesai?')) {
           this.wsSend('SELESAI');
           this.$router.replace(`/result/${this.id}`);
         }
@@ -108,17 +136,15 @@ export default class AdminDash extends Vue {
   }
 
   connectWs() {
-    
+
     const passcode = localStorage[`voter_${this.id}`] || '';
     const baseUrl = this.$api.url.replace(/^http(s)?/, 'ws$1');
     //const baseUrl = 'ws://localhost:8888'
     const wsUrl = `${baseUrl}/voter/voting/${this.id}`;
     const ws = this.$data._ws = new WebSocket(wsUrl, passcode || undefined);
     this.status = 'Connecting';
-
     ws.onopen = (e: Event) => {
       this.status = 'Connected';
-      ws.send('TEST');
     }
     ws.onclose = (e: Event) => {
       console.log('WS CLOSED', e);
@@ -132,14 +158,18 @@ export default class AdminDash extends Vue {
         if (e.data[0] === '{') {
           this.resultData = JSON.parse(e.data);
           this.isFinished = !!this.resultData.finished;
-          if( this.isFinished ){
+          if (this.isFinished) {
             alert("Quick Count Sudah Ditutup");
             ws.close();
             this.$router.replace(`/result/${this.id}`);
           }
-          this.results.splice(0, this.results.length, ...this.resultData.results);
-          console.log(this.resultData);
 
+          this.results.splice(0, this.results.length, ...this.data.candidates.map(
+            (v, i) => {
+              this.$set(v, 'count', this.resultData.results[i]);
+              return v;
+            }
+          ))
         }
       } else {
         // Update indes result
@@ -149,7 +179,7 @@ export default class AdminDash extends Vue {
             const int8 = new Int8Array(buf);
             const candidate = int8[0];
             const add = int8[1];
-            console.log("REC", int8);
+            console.log('VOTE OK', int8);
 
             if (this.results[candidate]) {
               this.results[candidate].count += add;
@@ -172,7 +202,7 @@ export default class AdminDash extends Vue {
   }
   @Watch('status')
   statusChanged(cur, old) {
-    if( this.isFinished ){
+    if (this.isFinished) {
       return;
     }
     document.title = `${this.data.name} - ${cur}`;

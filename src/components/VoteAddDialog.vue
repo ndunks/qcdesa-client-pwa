@@ -14,7 +14,7 @@
         <v-card-text>
           <v-form @submit.prevent="submit" ref="form" lazy-validation>
             <v-text-field
-              label="Nama Voting *"
+              label="Nama QuickCount *"
               type="text"
               required
               :rules="[v => !!v || 'Harus diisi']"

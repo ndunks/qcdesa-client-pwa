@@ -3,7 +3,7 @@
     <v-layout align-center justify-center>
       <v-flex xs12 sm6 md4>
         <v-card class="elevation-12">
-          <v-toolbar>
+          <v-toolbar dark color="primary">
             <v-toolbar-title>Pilih QuickCount</v-toolbar-title>
           </v-toolbar>
           <v-list-item v-for="(item, index) of list" :key="index" @click="pilih(index, item)">
