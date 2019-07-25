@@ -22,6 +22,14 @@
               @input="$data._changed['name'] = $event"
             ></v-text-field>
             <v-text-field
+              label="Total Pemilih *"
+              type="text"
+              required
+              :rules="[v => !!v || 'Harus diisi']"
+              :value="participant"
+              @input="$data._changed['participant'] = $event"
+            ></v-text-field>
+            <v-text-field
               label="Passcode for Voters"
               type="text"
               :value="passcode"
@@ -85,6 +93,9 @@ export default class VoteAddDialog extends Vue {
 
   @Prop()
   readonly passcode: any;
+  
+  @Prop()
+  readonly participant: any;
 
   @Prop()
   readonly desc: any;

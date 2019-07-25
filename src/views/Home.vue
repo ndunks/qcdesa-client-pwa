@@ -7,7 +7,7 @@
             <v-toolbar-title>Daftar Quick Count</v-toolbar-title>
           </v-toolbar>
           <v-list-item
-            @click="pilih(index, item)"
+            :href="'/result/' + index"
             v-for="(item, index) of list"
             :key="index"
           >
