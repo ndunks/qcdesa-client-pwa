@@ -6,8 +6,8 @@
           <v-toolbar>
             <v-toolbar-title>Pilih QuickCount</v-toolbar-title>
           </v-toolbar>
-          <v-list-item v-for="(item, index) of list" :key="index">
-            <v-list-item-content @click="pilih(index, item)">
+          <v-list-item v-for="(item, index) of list" :key="index" @click="pilih(index, item)">
+            <v-list-item-content>
               <v-list-item-title>{{ item.name }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
