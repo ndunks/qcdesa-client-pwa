@@ -1,40 +1,49 @@
 <template>
-  <v-container grid-list-md style="user-select: none">
-    <v-layout v-if="connected && results" wrap>
-      <v-flex v-for="(item, index) of results" :key="index" xs12 md4>
-        <v-sheet
-          :color="connected ? 'primary' : 'grey'"
-          v-ripple
-          class="d-flex align-center pa-3"
-          height="200"
-          @click="vote(index)"
-        >
-          <div class="title">{{ item.name }}</div>
-          <div class="count">{{ item.count }}</div>
-        </v-sheet>
-      </v-flex>
-      <v-flex xs12 md4>
-        <v-sheet
-          color="warning"
-          v-ripple
-          class="d-flex align-center pa-3"
-          height="200"
-          @click="vote(-1)"
-        >
-          <div class="title">TIDAK SAH</div>
-          <div class="count">{{ declined }}</div>
-        </v-sheet>
-      </v-flex>
+  <div>
+    <div v-if="connected && results" class="voter">
+      <v-sheet
+        dark
+        v-for="(item, index) of results"
+        :key="index"
+        :color="connected ? 'primary' : 'grey'"
+        v-ripple
+        class="d-flex align-center pa-3"
+        @click="vote(index)"
+        :style="{ backgroundImage: `url(${item.image})` }"
+      >
+        <div class="count white green--text">{{ item.count }}</div>
+        <div class="title">{{ item.number }}. {{ item.name }}</div>
+      </v-sheet>
+      <v-sheet
+        dark
+        color="error"
+        v-ripple
+        class="d-flex align-center pa-3"
+        @click="vote(-1)"
+      >
+        <div class="title">TIDAK SAH</div>
+        <div class="count">{{ declined }}</div>
+      </v-sheet>
+      <div>
+        <v-toolbar>
+          <v-toolbar-items>
+            <v-btn color="error" large @click="selesai()">
+              SELESAI
+            </v-btn>
+            <v-btn :disabled="cannotUndo" color="warning" large @click="undo()">
+              UNDO
+            </v-btn>
+          </v-toolbar-items>
+          <v-spacer></v-spacer>
+          <v-toolbar-items>
+            <v-btn large @click="goHome()">
+              go Home
+            </v-btn>
+          </v-toolbar-items>
+        </v-toolbar>
+      </div>
+    </div>
 
-      <v-flex xs12>
-        <v-btn color="error" large outlined @click="selesai()">
-          SELESAI
-        </v-btn>
-        <v-btn :disabled="cannotUndo" color="error" large outlined @click="undo()">
-          UNDO
-        </v-btn>
-      </v-flex>
-    </v-layout>
     <v-layout v-else align-center justify-center>
       <v-flex xs12 md4>
         <v-sheet
@@ -47,8 +56,43 @@
         </v-sheet>
       </v-flex>
     </v-layout>
-  </v-container>
+  </div>
 </template>
+<style>
+.voter {
+  user-select: none;
+  -webkit-user-drag: none;
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-content: space-between;
+}
+
+.voter > * {
+  flex: 1;
+  margin: 5px 10px;
+  background-position: right center;
+  background-size: auto 100%;
+}
+
+.voter > *:last-child {
+  margin: 0px;
+}
+
+.voter .count {
+  font-size: xx-large;
+  height: 100%;
+  text-align: center;
+  display: flex;
+  padding: 5%;
+  margin-right: 2%;
+  align-items: center;
+}
+</style>
 
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
@@ -75,7 +119,7 @@ export default class AdminDash extends Vue {
   } = null as any;
   isFinished = false;
   results: any[] = [];
-  
+
 
   get declined() {
     return this.resultData ? this.resultData.declined : '?';
@@ -98,14 +142,18 @@ export default class AdminDash extends Vue {
     _vote: DataView
     _lastVoted?: number | boolean
   }
-  get cannotUndo(){
-    return typeof(this.$data._lastVoted) != 'number';
+  get cannotUndo() {
+    return typeof (this.$data._lastVoted) != 'number';
   }
-  undo(){
+  undo() {
     this.vote(this.$data._lastVoted, -1);
     this.$data._lastVoted = false;
   }
-
+  goHome(){
+    if( confirm('Anda yakin?') ){
+      this.$router.push('/');
+    }
+  }
   mounted() {
     if (typeof (window['WebSocket']) != 'function') {
       alert('Perangkat anda tidak mendukung');
@@ -149,7 +197,7 @@ export default class AdminDash extends Vue {
     }
   }
   beforeDestroy() {
-    if(this.$data._ws && this.$data._ws.readyState != WebSocket.CLOSED ){
+    if (this.$data._ws && this.$data._ws.readyState != WebSocket.CLOSED) {
       this.$data._ws.close()
     }
   }

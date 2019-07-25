@@ -27,21 +27,24 @@
         </v-list>
       </v-menu>
     </v-app-bar>
-    <v-container fluid fill-height>
+    <v-container fluid grid-list-md>
       <v-layout v-if="!vote" align-center justify-center>
         <v-flex xs12 sm6 md4>
-          <v-sheet dark color="primary" class="text-center pa-3 elevation-3">
+          <v-sheet dark color="primary" class="text-center pa-5 elevation-3">
             <v-progress-circular large indeterminate></v-progress-circular>
             <h1 class="title">Please Wait</h1>
           </v-sheet>
         </v-flex>
       </v-layout>
-      <v-layout v-else align-center justify-center>
+      <v-layout v-else>
         <v-flex xs12 sm6 md4>
           <v-card>
-            <v-toolbar color="primary" dark>
-              <v-toolbar-title v-text="vote.name"></v-toolbar-title>
-            </v-toolbar>
+            <v-card-title>Detail QuickCount</v-card-title>
+          </v-card>
+        </v-flex>
+        <v-flex xs12 sm6 md4>
+          <v-card>
+            <v-card-title>Perolehan Suara</v-card-title>
             <v-list-item v-for="(item, index) of results" :key="index">
               <v-list-item-content>
                 <v-list-item-title v-text="item.name"></v-list-item-title>
