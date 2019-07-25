@@ -1,21 +1,11 @@
 <template>
   <v-content>
     <v-app-bar color="deep-purple accent-4" dark>
-      <v-btn icon href="/">
+      <v-btn icon to="/">
         <v-icon>mdi-poll</v-icon>
       </v-btn>
-
       <v-toolbar-title v-text="title"></v-toolbar-title>
-
       <v-spacer></v-spacer>
-
-      <v-btn icon>
-        <v-icon>mdi-heart</v-icon>
-      </v-btn>
-
-      <v-btn icon>
-        <v-icon>mdi-magnify</v-icon>
-      </v-btn>
 
       <v-menu left bottom>
         <template v-slot:activator="{ on }">
@@ -25,8 +15,14 @@
         </template>
 
         <v-list>
-          <v-list-item v-for="n in 5" :key="n" @click="() => {}">
-            <v-list-item-title>Option {{ n }}</v-list-item-title>
+          <v-list-item to="/">
+            <v-list-item-title>Home</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/about">
+            <v-list-item-title>About</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/voter">
+            <v-list-item-title>Voter</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
@@ -46,11 +42,7 @@
             <v-toolbar color="primary" dark>
               <v-toolbar-title v-text="vote.name"></v-toolbar-title>
             </v-toolbar>
-            <v-list-item
-              @click="pilih(index, item)"
-              v-for="(item, index) of results"
-              :key="index"
-            >
+            <v-list-item v-for="(item, index) of results" :key="index">
               <v-list-item-content>
                 <v-list-item-title v-text="item.name"></v-list-item-title>
               </v-list-item-content>
@@ -103,7 +95,7 @@ export default class Result extends Vue {
   }
   beforeDestroy() {
     console.log('Destry call');
-    
+
     clearTimeout(this.$data._timer);
     this.$data._timer = undefined;
   }

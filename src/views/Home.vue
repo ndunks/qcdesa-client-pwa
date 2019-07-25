@@ -1,7 +1,7 @@
 <template>
   <v-content>
     <v-app-bar color="deep-purple accent-4" dark>
-      <v-btn icon href="/">
+      <v-btn icon to="/">
         <v-icon>mdi-poll</v-icon>
       </v-btn>
       <v-toolbar-title>QuickCount</v-toolbar-title>
@@ -30,7 +30,7 @@
               <v-toolbar-title>Daftar Quick Count</v-toolbar-title>
             </v-toolbar>
             <v-list-item
-              :href="'/result/' + index"
+              :to="'/result/' + index"
               v-for="(item, index) of list"
               :key="index"
             >
