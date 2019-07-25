@@ -30,6 +30,9 @@
         <v-btn color="error" large outlined @click="selesai()">
           SELESAI
         </v-btn>
+        <v-btn :disabled="cannotUndo" color="error" large outlined @click="undo()">
+          UNDO
+        </v-btn>
       </v-flex>
     </v-layout>
     <v-layout v-else align-center justify-center>
@@ -72,6 +75,7 @@ export default class AdminDash extends Vue {
   } = null as any;
   isFinished = false;
   results: any[] = [];
+  
 
   get declined() {
     return this.resultData ? this.resultData.declined : '?';
@@ -88,9 +92,18 @@ export default class AdminDash extends Vue {
 
   _ws = null;
   _vote = new DataView(new ArrayBuffer(2));
+  _lastVoted = false;
   $data: {
     _ws?: WebSocket
     _vote: DataView
+    _lastVoted?: number | boolean
+  }
+  get cannotUndo(){
+    return typeof(this.$data._lastVoted) != 'number';
+  }
+  undo(){
+    this.vote(this.$data._lastVoted, -1);
+    this.$data._lastVoted = false;
   }
 
   mounted() {
@@ -116,6 +129,7 @@ export default class AdminDash extends Vue {
     this.$data._vote.setInt8(0, index)
     this.$data._vote.setInt8(1, add)
     this.wsSend(this.$data._vote.buffer);
+    this.$data._lastVoted = index;
   }
   selesai() {
     if (confirm('Anda yakin?')) {
@@ -157,7 +171,7 @@ export default class AdminDash extends Vue {
     }
     ws.onmessage = (e) => {
 
-      console.log('WS MESG', typeof (e.data), e);
+      //console.log('WS MESG', typeof (e.data), e);
       if (typeof (e.data) == 'string') {
         if (e.data[0] === '{') {
           this.resultData = JSON.parse(e.data);
@@ -183,7 +197,7 @@ export default class AdminDash extends Vue {
             const int8 = new Int8Array(buf);
             const candidate = int8[0];
             const add = int8[1];
-            console.log('VOTE OK', int8);
+            //console.log('VOTE OK', int8);
 
             if (this.results[candidate]) {
               this.results[candidate].count += add;
