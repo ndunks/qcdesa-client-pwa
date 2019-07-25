@@ -5,16 +5,14 @@
 module.exports = {
     devServer: {
         proxy: {
-            '/api/': {
-                target: 'http://localhost:8888/'
-            },
-            '/public/': {
-                target: 'http://localhost:8888/'
-            },
-            '/api/voter': {
+
+            '^/api/': {
                 target: 'http://localhost:8888/',
                 ws: true
-            }
+            },
+            '^/public/': {
+                target: 'http://localhost:8888/'
+            },
         }
     }
 }
