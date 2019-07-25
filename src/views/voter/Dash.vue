@@ -13,6 +13,11 @@
           <div class="count">{{ item.count }}</div>
         </v-sheet>
       </v-flex>
+      <v-flex xs12>
+        <v-btn color="error" large outlined @click="selesai()">
+          SELESAI
+        </v-btn>
+      </v-flex>
     </v-layout>
     <v-layout v-else>
       <v-flex xs12 md4>
@@ -40,7 +45,7 @@ export default class AdminDash extends Vue {
   id: number = -1;
   data: any = {};
   resultData: any = null;
-
+  isFinished = false;
   results: any[] = [];
 
   get list() {
@@ -84,6 +89,9 @@ export default class AdminDash extends Vue {
     this.$data._vote.setInt8(1, add)
     this.wsSend(this.$data._vote.buffer);
   }
+  selesai(){
+    this.wsSend('SELESAI');
+  }
   wsSend(data: any) {
     if (this.$data._ws) {
       this.$data._ws.send(data);
@@ -93,6 +101,7 @@ export default class AdminDash extends Vue {
   }
 
   connectWs() {
+    
     const passcode = localStorage[`voter_${this.id}`] || '';
     const baseUrl = this.$api.url.replace(/^http(s)?/, 'ws$1');
     //const baseUrl = 'ws://localhost:8888'
@@ -115,6 +124,12 @@ export default class AdminDash extends Vue {
       if (typeof (e.data) == 'string') {
         if (e.data[0] === '{') {
           this.resultData = JSON.parse(e.data);
+          this.isFinished = !!this.resultData.finished;
+          if( this.isFinished ){
+            alert("Quick Count Sudah Ditutup");
+            ws.close();
+            this.$router.replace(`/result/${this.id}`);
+          }
           this.results.splice(0, this.results.length, ...this.resultData.results);
           console.log(this.resultData);
 
@@ -150,6 +165,9 @@ export default class AdminDash extends Vue {
   }
   @Watch('status')
   statusChanged(cur, old) {
+    if( this.isFinished ){
+      return;
+    }
     document.title = `${this.data.name} - ${cur}`;
     if (this.status == 'Not Connected') {
       setTimeout(() => {
