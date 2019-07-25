@@ -67,36 +67,74 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
+import { setInterval, clearTimeout, setTimeout } from 'timers';
 
 @Component({
   name: "Result"
 })
 export default class Result extends Vue {
   vote: any = null;
+  result: any = null;
+  results: any[] = [];
   status: string = '';
 
-  get title(){
-     return this.vote ? `${this.vote.name}: ${this.status}` : this.status;
-  }
+  _timer: number = 0;
 
-  get results() {
-    return this.vote ? this.vote.results : [];
+
+  get title() {
+    return this.vote ? `${this.vote.name}: ${this.status}` : this.status;
   }
 
   created() {
     const id = parseInt(this.$route.params.id);
-    const url = `${this.$api.url}/public/${id}.json`;
-    fetch(url).then(
+    this.$api.listQuickcount().then(list => {
+      if (!list[id]) {
+        return this.$router.push('/');
+      }
+      this.vote = list[id];
+
+      this.results = this.vote.candidates.map(v => {
+        this.$set(v, 'count', '?');
+        return v;
+      })
+
+      this.loadResult();
+    })
+  }
+  beforeDestroy() {
+    console.log('Destry call');
+    
+    clearTimeout(this.$data._timer);
+    this.$data._timer = undefined;
+  }
+  loadResult() {
+    const url = `${this.$api.url}/public/${this.$route.params.id}.json`;
+    return fetch(url).then(
       res => {
-        console.log(res.status, res.statusText);
         if (res.status == 404) {
           this.status = 'Belum dimulai';
         } else {
-          this.vote = res.json();
-          this.status = this.vote.finished ? 'Selesai' : 'Sedang Berlangsung';
+          return res.json().then(
+            result => {
+              this.result = result;
+              this.status = this.result.finished ? 'Selesai' : 'Sedang Berlangsung';
+              this.result.results.forEach((v, i) => this.results[i].count = v);
+            }
+          );
+
         }
       }
-    ).catch(console.error)
+    ).then(() => {
+      // Runtime
+      if (typeof (this.$data._timer) == 'undefined') {
+        return;
+      }
+      this.$data._timer = setTimeout(() => {
+        this.loadResult()
+      }, 10000
+      );
+
+    }).catch(console.error)
   }
 
 }

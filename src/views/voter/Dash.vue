@@ -73,7 +73,7 @@ export default class AdminDash extends Vue {
   isFinished = false;
   results: any[] = [];
 
-  get declined(){
+  get declined() {
     return this.resultData ? this.resultData.declined : '?';
   }
   get list() {
@@ -134,7 +134,11 @@ export default class AdminDash extends Vue {
       console.error('Send message when no ws');
     }
   }
-
+  beforeDestroy() {
+    if(this.$data._ws && this.$data._ws.readyState != WebSocket.CLOSED ){
+      this.$data._ws.close()
+    }
+  }
   connectWs() {
 
     const passcode = localStorage[`voter_${this.id}`] || '';
