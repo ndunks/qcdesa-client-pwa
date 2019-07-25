@@ -1,7 +1,7 @@
 <template>
   <v-container fluid fill-height>
     <v-layout align-center justify-center>
-      <v-flex xs12 sm6 md4>
+      <v-flex xs12 sm8 md6>
         <v-card>
           <v-toolbar color="primary" dark>
             <v-toolbar-title>Daftar Quick Count</v-toolbar-title>
@@ -12,7 +12,11 @@
             :key="index"
           >
             <v-list-item-avatar>
-              <v-icon v-if="item.fetched" v-text="item.statusIcon" :class="item.statusClass"></v-icon>
+              <v-icon
+                v-if="item.fetched"
+                v-text="item.statusIcon"
+                :class="item.statusClass"
+              ></v-icon>
               <v-progress-circular v-else indeterminate> </v-progress-circular>
             </v-list-item-avatar>
             <v-list-item-content>
@@ -41,40 +45,43 @@ export default class Home extends Vue {
     })
   }
   statusIcon = {
-      'Selesai': 'mdi-check-all',
-      'Belum dimulai': 'mdi-alarm-off',
-      'Sedang Berlangsung': 'mdi-alarm',
+    'Selesai': 'mdi-check-all',
+    'Belum dimulai': 'mdi-alarm-off',
+    'Sedang Berlangsung': 'mdi-alarm',
   }
   statusClass = {
-      'Selesai': 'success',
-      'Belum dimulai': 'grey',
-      'Sedang Berlangsung': 'yellow',
+    'Selesai': 'success white--text',
+    'Belum dimulai': 'grey white--text',
+    'Sedang Berlangsung': 'warning white--text',
   }
   fetch = (item, index, list) => {
-      const url = `${this.$api.url}/public/${index}.json`;
-      fetch(url).then(
-          res => {
-              console.log(res.status, res.statusText);
-              if(res.status == 404){
-                  throw "NOTTT FOUND";
-                  
-              }else{
-                  const json:any = res.json();
-                  this.$set(item,'status',json.finished ? 'Selesai' : 'Sedang Berlangsung');
-              }
-          }
-      ).catch(
-          error => {
-              console.log('FEER', error);
-              this.$set(item, 'status', 'Belum dimulai');
-              
-          }
-      ).finally( () => {
+    const url = `${this.$api.url}/public/${index}.json`;
+    fetch(url).then(
+      res => {
+        console.log(res.status, res.statusText);
+        if (res.status == 404) {
+          throw "NOTTT FOUND";
 
-          this.$set(item, 'statusIcon', this.statusIcon[ item.status ] );
-          this.$set(item, 'statusClass', this.statusClass[ item.status ] );
-          this.$set(item, 'fetched', true);
-      })
+        } else {
+          res.json().then(
+              json => {
+                  this.$set(item, 'status', json.finished ? 'Selesai' : 'Sedang Berlangsung');
+              }
+          );
+        }
+      }
+    ).catch(
+      error => {
+        console.log('FEER', error);
+        this.$set(item, 'status', 'Belum dimulai');
+
+      }
+    ).finally(() => {
+
+      this.$set(item, 'statusIcon', this.statusIcon[item.status]);
+      this.$set(item, 'statusClass', this.statusClass[item.status]);
+      this.$set(item, 'fetched', true);
+    })
   }
   pilih(index, item) {
 
