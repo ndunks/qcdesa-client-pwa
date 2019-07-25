@@ -3,14 +3,14 @@
     <v-layout align-center justify-center>
       <v-flex xs12 sm6 md4>
         <v-card class="elevation-12">
-          <v-toolbar>
-            <v-toolbar-title>Vote List</v-toolbar-title>
-
+          <v-toolbar dark color="success">
+            <v-toolbar-title>Pilih QuickCount</v-toolbar-title>
+            
             <v-spacer></v-spacer>
             <VoteAddDialog @save="save" @click="selectedIndex = -1" v-bind="selected" />
           </v-toolbar>
-          <v-list-item v-for="(item, index) of list" :key="index">
-            <v-list-item-content @click="selectedIndex = index">
+          <v-list-item v-for="(item, index) of list" :key="index" @click="selectedIndex = index">
+            <v-list-item-content>
               <v-list-item-title>{{item.name}}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>

@@ -19,11 +19,11 @@
         </v-btn>
       </v-flex>
     </v-layout>
-    <v-layout v-else>
+    <v-layout v-else align-center justify-center>
       <v-flex xs12 md4>
         <v-sheet
           :color="status == 'Not Connected' ? 'error' : 'orange'"
-          height="200"
+          height="200" class="text-center pa-3 elevation-3"
         >
           <h1 class="title">{{ status }}</h1>
         </v-sheet>
@@ -90,7 +90,14 @@ export default class AdminDash extends Vue {
     this.wsSend(this.$data._vote.buffer);
   }
   selesai(){
-    this.wsSend('SELESAI');
+    if( confirm('Anda yakin?') ){
+      setTimeout( () => {
+        if(confirm('Jika ini dinyatakan selesai, maka anda tidak bisa membatalkannya. Yakin Sudah Selesai?')){
+          this.wsSend('SELESAI');
+          this.$router.replace(`/result/${this.id}`);
+        }
+      }, 3000)
+    }
   }
   wsSend(data: any) {
     if (this.$data._ws) {

@@ -49,7 +49,7 @@ export class Api {
      */
     listQuickcount(){
         // Cached in localStorage
-        return this.sendGet('/list').then( list => localStorage['list'] = list);
+        return this.sendGet('/public/data.json').then( list => localStorage['list'] = list);
     }
     voterCheck(id, passcode){
         return this.send('POST', 'voter/check', {id, passcode });

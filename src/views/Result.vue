@@ -40,40 +40,13 @@ import { Component, Vue } from "vue-property-decorator";
 })
 export default class Result extends Vue {
   vote: any = null;
-  resultData: any = null;
   status: string = '';
 
   get results() {
-    if (!this.vote) {
-      return [];
-    }
-
-    let res = this.vote.candidates;
-    if (this.resultData) {
-      this.resultData.results.forEach((v, i) => {
-        res[i] = { ...res[i], ...v }
-      })
-    } else {
-      res.forEach(v => v.count = '?');
-    }
-
-    return res;
+      return this.vote ? this.vote.results : [];
   }
 
   created() {
-    const id = parseInt(this.$route.params.id);
-
-    this.$api.listQuickcount().then(list => {
-      if (list[id]) {
-        this.vote = list[id];
-        this.fetch();
-      } else {
-        alert('Not Found')
-      }
-    })
-  }
-
-  fetch() {
     const id = parseInt(this.$route.params.id);
     const url = `${this.$api.url}/public/${id}.json`;
     fetch(url).then(
@@ -82,8 +55,8 @@ export default class Result extends Vue {
         if (res.status == 404) {
           this.status = 'Belum dimulai';
         } else {
-          this.resultData = res.json();
-          this.status = this.resultData.finished ? 'Selesai' : 'Sedang Berlangsung';
+          this.vote = res.json();
+          this.status = this.vote.finished ? 'Selesai' : 'Sedang Berlangsung';
         }
       }
     ).catch(console.error)
