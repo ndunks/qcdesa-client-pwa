@@ -1,6 +1,6 @@
 <template>
   <v-content>
-    <Navbar back  color="orange"/>
+    <Navbar back  color="orange" title="Voter Access"/>
     <v-container fluid fill-height>
       <v-layout align-center justify-center>
         <v-flex xs12 sm6 md4>

@@ -1,13 +1,10 @@
 <template>
   <v-content>
-    <Navbar back color="success" />
+    <Navbar back color="success" title="Administrator Access" />
     <v-container fluid fill-height>
       <v-layout align-center justify-center>
         <v-flex xs12 sm6 md4>
           <v-card class="elevation-12">
-            <v-card-title>
-              <v-toolbar-title>Administrator Access</v-toolbar-title>
-            </v-card-title>
             <v-card-text>
               <v-form @submit.prevent="submit">
                 <v-text-field
