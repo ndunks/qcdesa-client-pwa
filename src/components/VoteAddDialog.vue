@@ -1,6 +1,6 @@
 <template>
   <div class="text-center">
-    <v-dialog v-model="visible" width="600" scrollable>
+    <v-dialog :value="value" @input="$listeners.input" class="ma-0" max-width="600" scrollable>
       <template v-slot:activator="{ on }">
         <v-btn icon @click="$emit('click')" v-on="on">
           <v-icon>mdi-plus</v-icon>
@@ -8,7 +8,7 @@
       </template>
 
       <v-card>
-        <v-card-title class="headline grey lighten-2" primary-title>
+        <v-card-title class="success white--text">
           {{ title }}
         </v-card-title>
         <v-card-text>
@@ -35,6 +35,11 @@
               :value="passcode"
               @input="$data._changed['passcode'] = $event"
             ></v-text-field>
+            <v-switch
+              label="Hide from Home"
+              :value="hide"
+              @input="$data._changed['hide'] = $event"
+            ></v-switch>
             <v-textarea
               label="Deskripsi"
               rows="2"
@@ -49,7 +54,7 @@
               <VoteInputCandidate
                 v-bind="item"
                 @delete="deleteCandidate(index, item)"
-                @change="(field, value) => (item[field] = value)"
+                @change="changeCandidate(index, item, ...arguments)"
               />
 
               <v-divider></v-divider>
@@ -59,7 +64,7 @@
         <v-divider></v-divider>
 
         <v-card-actions>
-          <v-btn color="error" text @click="visible = false">
+          <v-btn color="error" text @click="$emit('batal')">
             <v-icon>mdi-close</v-icon> Batal
           </v-btn>
           <v-spacer></v-spacer>
@@ -93,7 +98,7 @@ export default class VoteAddDialog extends Vue {
 
   @Prop()
   readonly passcode: any;
-  
+
   @Prop()
   readonly participant: any;
 
@@ -101,58 +106,64 @@ export default class VoteAddDialog extends Vue {
   readonly desc: any;
 
   @Prop()
+  readonly hide: any;
+
+  @Prop()
   readonly candidates: any[];
+
+  @Prop({type: Boolean})
+  readonly value: boolean | null;
 
   candidateList: any[] = [{ number: 1 }]
 
   @Watch('candidates')
   candidatesChange(current: any[] | null, old): any[] {
-    console.log('Candidate Changed');
     return this.candidateList = (current || []);
   }
 
   @Watch('name')
   reset() {
     this.$data._changed = {};
-    if( this.$refs.form ){
-      this.$refs.form.resetValidation();
-    }
     if (this.name && this.name.length) {
       this.title = `Ubah ${this.name}`
     } else {
       this.title = 'Tambah QuickCount'
-      this.candidates.splice(0, this.candidates.length, {number: 1});
+      this.candidateList.splice(0, this.candidateList.length, { number: 1 });
     }
-    this.visible = true;
+    if (this.$refs.form) {
+      this.$refs.form.resetValidation();
+    }
   }
 
   title = 'Tambah QuickCount';
-  visible: boolean | null = null;
+  
   _changed: any = {};
   $data: {
     _changed: any;
   }
-  
+
   $refs: {
     form: any
   }
 
   submit() {
-    console.log('changed', this.$data._changed, this.candidateList)
-    if (!this.$refs.form.validate()) {
-      return;
+    if (this.$refs.form.validate()) {
+      this.$emit('save', this.$data._changed)
     }
-    this.$data._changed.candidates = this.candidateList;
-    this.$emit('save', this.$data._changed)
-    this.visible = false;
   }
+  /** Mark all candidates as modified even just one field changed */
   deleteCandidate(index, item) {
-    console.log('Del', item);
-
     if (item && item.name && !confirm(`'Hapus ${item.name} dari kandidat?`)) {
       return;
     }
     this.candidateList.splice(index, 1)
+    this.$data._changed.candidates = this.candidateList;
+  }
+  /** Mark all candidates as modified even just one field changed */
+  changeCandidate(index, item, field, value){
+    console.log(index, item, field, value)
+    item[field] = value;
+    this.$data._changed.candidates = this.candidateList;
   }
 }
 </script>

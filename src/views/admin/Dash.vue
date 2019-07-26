@@ -11,14 +11,15 @@
               <v-spacer></v-spacer>
               <VoteAddDialog
                 @save="save"
-                @click="selectedIndex = -1"
+                v-model="dialogVisible"
+                @batal="dialogVisible = false"
                 v-bind="selected"
               />
             </v-toolbar>
             <v-list-item
               v-for="(item, index) of list"
               :key="index"
-              @click="selectedIndex = index"
+              @click="showDialog(index)"
             >
               <v-list-item-content>
                 <v-list-item-title>{{ item.name }}</v-list-item-title>
@@ -32,7 +33,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue, Watch } from "vue-property-decorator";
 import VoteAddDialog from "@/components/VoteAddDialog.vue";
 import Navbar from "@/components/Navbar.vue";
 
@@ -42,31 +43,53 @@ import Navbar from "@/components/Navbar.vue";
 })
 export default class AdminDash extends Vue {
 
+  dialogVisible: boolean | null = null;
+  @Watch('dialogVisible')
+  dialogVisibleChanged(cur, old) {
+    console.log('dialogVisible', old, '->', cur);
+    if (!cur) {
+      this.selectedIndex = -1;
+    }
+
+  }
   selectedIndex: number = -1;
   list: any[] = [];
 
   get selected() {
     return this.list[this.selectedIndex] || false;
   }
-
+  showDialog(editId) {
+    this.selectedIndex = editId;
+    this.dialogVisible = true;
+  }
   mounted() {
     this.$api.adminListQuickcount().then(list => this.list = list)
   }
   save(changed) {
-    console.log('Save ', changed);
+    if (!Object.keys(changed).length) {
+      console.log('Nothing to save, ignore', changed);
+      this.dialogVisible = false;
+      return;
+    }
     if (this.selectedIndex >= 0) {
       // Patch
       this.$api.adminPatchQuickcount(this.selectedIndex, changed).then(
         () => {
           const item = this.selected;
           for (let field in changed) {
+            console.log('SET', item[field], changed[field]);
+
             item[field] = changed[field];
           }
+          this.dialogVisible = false;
         }
-      ).catch(err => alert(err.message)).finally(() => this.selectedIndex = -1);
+      ).catch(err => alert(err.message))
     } else {
       this.$api.adminAddQuickcount(changed).then(
-        () => this.list.push(changed)
+        () => {
+          this.list.push(changed);
+          this.dialogVisible = false
+        }
       ).catch(err => alert(err.message));
     }
   }
