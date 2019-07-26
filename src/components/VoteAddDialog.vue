@@ -1,6 +1,12 @@
 <template>
   <div class="text-center">
-    <v-dialog :value="value" @input="$listeners.input" class="ma-0" max-width="600" scrollable>
+    <v-dialog
+      :value="value"
+      @input="$listeners.input"
+      class="ma-0"
+      max-width="600"
+      scrollable
+    >
       <template v-slot:activator="{ on }">
         <v-btn icon @click="$emit('click')" v-on="on">
           <v-icon>mdi-plus</v-icon>
@@ -35,11 +41,7 @@
               :value="passcode"
               @input="$data._changed['passcode'] = $event"
             ></v-text-field>
-            <v-switch
-              label="Hide from Home"
-              :value="hide"
-              @input="$data._changed['hide'] = $event"
-            ></v-switch>
+            <v-switch label="Hide from Home" v-model="hideChanged"></v-switch>
             <v-textarea
               label="Deskripsi"
               rows="2"
@@ -111,8 +113,23 @@ export default class VoteAddDialog extends Vue {
   @Prop()
   readonly candidates: any[];
 
-  @Prop({type: Boolean})
+  @Prop({ type: Boolean })
   readonly value: boolean | null;
+
+  hideChanged = null;
+
+  @Watch('hide')
+  defaultHideChanged(cur, old) {
+    console.log('H', cur, old);
+    this.hideChanged = cur;
+  }
+
+  @Watch('hideChanged')
+  watchHideChanged(cur, old) {
+    console.log('HC', cur, old);
+    this.$data._changed['hide'] = cur;
+  }
+
 
   candidateList: any[] = [{ number: 1 }]
 
@@ -136,7 +153,7 @@ export default class VoteAddDialog extends Vue {
   }
 
   title = 'Tambah QuickCount';
-  
+
   _changed: any = {};
   $data: {
     _changed: any;
@@ -160,8 +177,7 @@ export default class VoteAddDialog extends Vue {
     this.$data._changed.candidates = this.candidateList;
   }
   /** Mark all candidates as modified even just one field changed */
-  changeCandidate(index, item, field, value){
-    console.log(index, item, field, value)
+  changeCandidate(index, item, field, value) {
     item[field] = value;
     this.$data._changed.candidates = this.candidateList;
   }

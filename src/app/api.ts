@@ -60,10 +60,7 @@ export class Api {
      * Get list of quick count
      */
     listQuickcount() {
-        // Cached in local memory
-        return this._cache['data.json'] ?
-            Promise.resolve(this._cache['data.json']) :
-            this.sendGet('/public/data.json', {
+        return this.sendGet('/public/data.json', {
                 [Date.now().toString(36)]: Date.now().toString(36)
             }).then(list => this._cache['data.json'] = list);
     }

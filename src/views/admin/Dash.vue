@@ -46,11 +46,9 @@ export default class AdminDash extends Vue {
   dialogVisible: boolean | null = null;
   @Watch('dialogVisible')
   dialogVisibleChanged(cur, old) {
-    console.log('dialogVisible', old, '->', cur);
     if (!cur) {
       this.selectedIndex = -1;
     }
-
   }
   selectedIndex: number = -1;
   list: any[] = [];
@@ -77,8 +75,6 @@ export default class AdminDash extends Vue {
         () => {
           const item = this.selected;
           for (let field in changed) {
-            console.log('SET', item[field], changed[field]);
-
             item[field] = changed[field];
           }
           this.dialogVisible = false;

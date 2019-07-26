@@ -50,7 +50,7 @@ export default class Home extends Vue {
   list: any[] = [];
   created() {
     this.$api.listQuickcount().then(list => {
-      this.list = list;
+      this.list = list.filter( v => !v.hide);
       list.forEach(this.fetch)
     })
   }
