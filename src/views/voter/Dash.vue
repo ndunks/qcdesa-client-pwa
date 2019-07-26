@@ -81,6 +81,7 @@
 
 .voter > *:last-child {
   margin: 0px;
+  flex: 0;
 }
 
 .voter .count {

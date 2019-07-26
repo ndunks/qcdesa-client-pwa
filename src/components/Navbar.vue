@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar :color="color" dark>
+  <v-app-bar :color="color" dark dense>
     <v-btn icon @click="iconClick">
       <v-icon v-text="icon"></v-icon>
     </v-btn>
