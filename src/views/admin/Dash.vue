@@ -12,7 +12,8 @@
               <VoteAddDialog
                 @save="save"
                 v-model="dialogVisible"
-                @batal="dialogVisible = false"
+                @batal="dialogVisible = null"
+                @click="showDialog(-1)"
                 v-bind="selected"
               />
             </v-toolbar>
@@ -43,13 +44,13 @@ import Navbar from "@/components/Navbar.vue";
 })
 export default class AdminDash extends Vue {
 
-  dialogVisible: boolean | null = null;
-  @Watch('dialogVisible')
+  dialogVisible: string | boolean | null = null;
+  /* @Watch('dialogVisible')
   dialogVisibleChanged(cur, old) {
     if (!cur) {
       this.selectedIndex = -1;
     }
-  }
+  } */
   selectedIndex: number = -1;
   list: any[] = [];
 
@@ -58,7 +59,7 @@ export default class AdminDash extends Vue {
   }
   showDialog(editId) {
     this.selectedIndex = editId;
-    this.dialogVisible = true;
+    this.dialogVisible = editId >= 0 ? 'edit' : 'new';
   }
   mounted() {
     this.$api.adminListQuickcount().then(list => this.list = list)

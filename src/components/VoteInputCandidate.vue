@@ -1,5 +1,5 @@
 <template>
-  <v-container grid-list-md>
+  <v-container pa-0 grid-list-md>
     <v-layout wrap>
       <v-flex xs12 sm4>
         <v-text-field
@@ -9,7 +9,6 @@
           :rules="[v => !!v || 'Tidak boleh kosong']"
           :value="number"
           @input="$emit('change', 'number', $event)"
-          outlined
         ></v-text-field>
       </v-flex>
       <v-flex xs12 sm8>
@@ -20,7 +19,6 @@
           :rules="[v => !!v || 'Tidak boleh kosong']"
           :value="name"
           @input="$emit('change', 'name', $event)"
-          outlined
         >
           <template #append-outer>
             <v-icon
