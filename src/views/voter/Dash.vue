@@ -25,18 +25,18 @@
         <div class="count">{{ declined }}</div>
       </v-sheet>
       <div>
-        <v-toolbar>
+        <v-toolbar dense>
           <v-toolbar-items>
-            <v-btn color="error" large @click="selesai()">
+            <v-btn color="error" @click="selesai()">
               SELESAI
             </v-btn>
-            <v-btn :disabled="cannotUndo" color="warning" large @click="undo()">
+            <v-btn :disabled="cannotUndo" color="warning" @click="undo()">
               UNDO
             </v-btn>
           </v-toolbar-items>
           <v-spacer></v-spacer>
           <v-toolbar-items>
-            <v-btn large @click="goHome()">
+            <v-btn @click="goHome()">
               go Home
             </v-btn>
           </v-toolbar-items>
@@ -106,11 +106,10 @@ import { setTimeout } from 'timers';
 })
 export default class AdminDash extends Vue {
   id: number = -1;
+  tps: number = -1;
   data: any = {};
   resultData: {
     started: number,
-    // Total pemilih
-    participant: number,
     updated?: number,
     finished?: number,
     accepted: number,
@@ -137,18 +136,18 @@ export default class AdminDash extends Vue {
 
   _ws = null;
   _vote = new DataView(new ArrayBuffer(2));
-  _lastVoted = false;
+  _undo = [];
   $data: {
     _ws?: WebSocket
     _vote: DataView
-    _lastVoted?: number | boolean
+    _undo: number[]
   }
   get cannotUndo() {
-    return typeof (this.$data._lastVoted) != 'number';
+    return !this.$data._undo.length;
   }
   undo() {
-    this.vote(this.$data._lastVoted, -1);
-    this.$data._lastVoted = false;
+    this.vote(this.$data._undo.pop(), -1, true);
+
   }
   goHome() {
     if (confirm('Anda yakin?')) {
@@ -161,6 +160,8 @@ export default class AdminDash extends Vue {
       return;
     }
     this.id = parseInt(this.$route.params['id']);
+    this.tps = parseInt(this.$route.params['tps']);
+
     this.$api.listQuickcount().then(list => {
       if (list[this.id]) {
         this.data = list[this.id];
@@ -171,14 +172,16 @@ export default class AdminDash extends Vue {
     })
   }
 
-  vote(index, add = 1) {
+  vote(index, add = 1, isUndo?: boolean) {
     if (!this.connected) {
       return alert('Tidak terhubung dengan server');
     }
     this.$data._vote.setInt8(0, index)
     this.$data._vote.setInt8(1, add)
     this.wsSend(this.$data._vote.buffer);
-    this.$data._lastVoted = index;
+    if (!isUndo) {
+      this.$data._undo.push(index);
+    }
   }
   selesai() {
     if (confirm('Anda yakin?')) {
@@ -187,7 +190,7 @@ export default class AdminDash extends Vue {
           this.wsSend('SELESAI');
           this.$router.replace(`/result/${this.id}`);
         }
-      }, 3000)
+      }, 2000)
     }
   }
   wsSend(data: any) {
@@ -204,8 +207,8 @@ export default class AdminDash extends Vue {
   }
   connectWs() {
 
-    const passcode = localStorage[`voter_${this.id}`] || '';
-    const wsUrl = this.$api.getDirectUrl(`/voter/voting/${this.id}`).replace(/^http(s)?/, 'ws$1');
+    const passcode = localStorage[`voter_${this.id}_${this.tps}`] || '';
+    const wsUrl = this.$api.getDirectUrl(`/voter/voting/${this.id}/${this.tps}`).replace(/^http(s)?/, 'ws$1');
     const ws = this.$data._ws = new WebSocket(wsUrl, passcode || undefined);
     this.status = 'Connecting';
     ws.onopen = (e: Event) => {
@@ -220,21 +223,30 @@ export default class AdminDash extends Vue {
 
       //console.log('WS MESG', typeof (e.data), e);
       if (typeof (e.data) == 'string') {
-        if (e.data[0] === '{') {
-          this.resultData = JSON.parse(e.data);
-          this.isFinished = !!this.resultData.finished;
-          if (this.isFinished) {
-            alert("Quick Count Sudah Ditutup");
-            ws.close();
-            this.$router.replace(`/result/${this.id}`);
-          }
-
-          this.results.splice(0, this.results.length, ...this.data.candidates.map(
-            (v, i) => {
-              this.$set(v, 'count', this.resultData.results[i]);
-              return v;
+        switch (e.data[0] || null) {
+          case '{':
+            this.resultData = JSON.parse(e.data);
+            this.isFinished = !!this.resultData.finished;
+            if (this.isFinished) {
+              alert("Quick Count Sudah Ditutup");
+              ws.close();
+              this.$router.replace(`/result/${this.id}`);
             }
-          ))
+
+            this.results.splice(0, this.results.length, ...this.data.candidates.map(
+              (v, i) => {
+                this.$set(v, 'count', this.resultData.results[i]);
+                return v;
+              }
+            ))
+            break;
+          case ':':
+            alert(e.data.substr(1));
+            this.$router.push('/voter');
+            break
+          default:
+            console.warn('Unhandled server message', e.data);
+            break;
         }
       } else {
         // Update indes result

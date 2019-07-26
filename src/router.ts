@@ -35,7 +35,7 @@ const router = new Router({
           component: () => import(/* webpackChunkName: "voter" */ './views/voter/Login.vue'),
         },
         {
-          path: 'dash/:id',
+          path: 'dash/:id/:tps',
           name: 'voter-dash',
           component: () => import(/* webpackChunkName: "voter" */ './views/voter/Dash.vue'),
         }

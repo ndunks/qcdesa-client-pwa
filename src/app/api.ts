@@ -64,8 +64,8 @@ export class Api {
                 [Date.now().toString(36)]: Date.now().toString(36)
             }).then(list => this._cache['data.json'] = list);
     }
-    voterCheck(id, passcode) {
-        return this.send('POST', 'voter/check', { id, passcode });
+    voterCheck(id, location, passcode) {
+        return this.send('POST', 'voter/check', { id, location, passcode });
     }
 
     adminListQuickcount() {
