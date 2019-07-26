@@ -40,10 +40,10 @@ export class Api {
             k => (this as any)[k] = options[k]
         );
         // Fallback default url
-        if( !this.url ){
+        if (!this.url) {
             this.url = `/api`;
-        }else if( !this.url.match(/^https?:/) ){
-            this.url = `${location.protocol}//${location.host}/${this.url.replace(/^\/+/,'')}`;
+        } else if (!this.url.match(/^https?:/)) {
+            this.url = `${location.protocol}//${location.host}/${this.url.replace(/^\/+/, '')}`;
         }
         // Auto display loading bar when fetching data
         this.beforeFetch.push(() => loading.counter++)
@@ -63,7 +63,9 @@ export class Api {
         // Cached in local memory
         return this._cache['data.json'] ?
             Promise.resolve(this._cache['data.json']) :
-            this.sendGet('/public/data.json').then(list => this._cache['data.json'] = list);
+            this.sendGet('/public/data.json', {
+                [Date.now().toString(36)]: Date.now().toString(36)
+            }).then(list => this._cache['data.json'] = list);
     }
     voterCheck(id, passcode) {
         return this.send('POST', 'voter/check', { id, passcode });
@@ -86,11 +88,11 @@ export class Api {
      * @param file Input file to upload
      */
     adminUpload(file: File): Promise<{ size: number, url: string }> {
-        return this.fetch( this.getDirectUrl(`admin/upload/${file.name}`), 'POST', file);
+        return this.fetch(this.getDirectUrl(`admin/upload/${file.name}`), 'POST', file);
     }
 
-    getDirectUrl( path: string = '' ){
-        return (this.direct_url || this.url ) + '/' + path.replace(/^\/+/, '');
+    getDirectUrl(path: string = '') {
+        return (this.direct_url || this.url) + '/' + path.replace(/^\/+/, '');
     }
 
     /**

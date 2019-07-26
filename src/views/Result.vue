@@ -266,7 +266,7 @@ export default class Result extends Vue {
     this.$data._timer = undefined;
   }
   loadResult() {
-    const url = `${this.$api.url}/public/${this.$route.params.id}.json`;
+    const url = `${this.$api.url}/public/${this.$route.params.id}.json?${Date.now().toString(36)}=${Date.now().toString(36)}`;
     return fetch(url).then(
       res => {
         if (res.status == 404) {
