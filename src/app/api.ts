@@ -11,7 +11,12 @@ export class Api {
      * You can extends via .env file (dont forget to restart build process)
      * `Vue.use(Api, {url: process.ENV.VUE_APP_API_URL})`
      */
-    url: string = `${location.protocol}//${location.host}/api`;
+    url: string;
+
+    /**
+     * Unproxied API Backend
+     */
+    direct_url: string;
 
     /** Valid passcode to access */
     passcode: string | null
@@ -34,6 +39,12 @@ export class Api {
         options && Object.keys(options).forEach(
             k => (this as any)[k] = options[k]
         );
+        // Fallback default url
+        if( !this.url ){
+            this.url = `/api`;
+        }else if( !this.url.match(/^https?:/) ){
+            this.url = `${location.protocol}//${location.host}/${this.url.replace(/^\/+/,'')}`;
+        }
         // Auto display loading bar when fetching data
         this.beforeFetch.push(() => loading.counter++)
         this.afterFetch.push(() => loading.counter--)
@@ -75,7 +86,11 @@ export class Api {
      * @param file Input file to upload
      */
     adminUpload(file: File): Promise<{ size: number, url: string }> {
-        return this.send('POST', `admin/upload/${file.name}`, file);
+        return this.fetch( this.getDirectUrl(`admin/upload/${file.name}`), 'POST', file);
+    }
+
+    getDirectUrl( path: string = '' ){
+        return (this.direct_url || this.url ) + '/' + path.replace(/^\/+/, '');
     }
 
     /**
@@ -120,19 +135,14 @@ export class Api {
         return this.send('GET', path, null, query, headers)
     }
 
+    send<TDATA = any>(method: HttpMethod, path: string, body?: any, query?: any, headers?: HeadersInit): Promise<TDATA> {
+        return this.fetch<TDATA>(`${this.url}/${path.replace(/^\/+/, '')}`, method, body, query, headers)
+    }
+
     /**
      * Low level API Request
      */
-    send<TDATA = any>(method: HttpMethod, path: string, body?: any, query?: any, headers?: HeadersInit): Promise<TDATA> {
-        if (!this.url) {
-            return Promise.reject('No API URL');
-        }
-        if (!path) {
-            return Promise.reject('No path');
-        }
-
-        let requestUrl = `${this.url}/${path.replace(/^\/+/, '')}`;
-
+    fetch<TDATA = any>(requestUrl: string, method: HttpMethod, body?: any, query?: any, headers?: HeadersInit): Promise<TDATA> {
         headers = new Headers(headers ? { ...this.defaultHeaders, ...headers } : this.defaultHeaders)
 
         const init: RequestInit = {

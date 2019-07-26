@@ -5,7 +5,10 @@ import vuetify from './plugins/vuetify';
 import { Api } from './app/api';
 
 Vue.config.productionTip = false
-Vue.use(Api)
+Vue.use(Api, {
+  url: process.env.VUE_APP_API_URL,
+  direct_url: process.env.VUE_APP_API_DIRECT_URL
+})
 
 new Vue({
   router,

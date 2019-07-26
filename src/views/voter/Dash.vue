@@ -150,8 +150,8 @@ export default class AdminDash extends Vue {
     this.vote(this.$data._lastVoted, -1);
     this.$data._lastVoted = false;
   }
-  goHome(){
-    if( confirm('Anda yakin?') ){
+  goHome() {
+    if (confirm('Anda yakin?')) {
       this.$router.push('/');
     }
   }
@@ -205,9 +205,7 @@ export default class AdminDash extends Vue {
   connectWs() {
 
     const passcode = localStorage[`voter_${this.id}`] || '';
-    const baseUrl = this.$api.url.replace(/^http(s)?/, 'ws$1');
-    //const baseUrl = 'ws://localhost:8888'
-    const wsUrl = `${baseUrl}/voter/voting/${this.id}`;
+    const wsUrl = this.$api.getDirectUrl(`/voter/voting/${this.id}`).replace(/^http(s)?/, 'ws$1');
     const ws = this.$data._ws = new WebSocket(wsUrl, passcode || undefined);
     this.status = 'Connecting';
     ws.onopen = (e: Event) => {
