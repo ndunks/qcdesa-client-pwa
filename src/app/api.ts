@@ -75,7 +75,7 @@ export class Api {
      * @param file Input file to upload
      */
     adminUpload(file: File): Promise<{ size: number, url: string }> {
-        return this.send('PUT', `admin/upload/${file.name}`, file);
+        return this.send('POST', `admin/upload/${file.name}`, file);
     }
 
     /**
