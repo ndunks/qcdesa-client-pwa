@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import { VApp, VContent } from 'vuetify/lib';
+import { VApp } from 'vuetify/lib';
 import router from './router'
 import vuetify from './plugins/vuetify';
 import { Api } from './app/api';
@@ -10,7 +10,7 @@ Vue.use(Api)
 new Vue({
   router,
   vuetify,
-  render: h => h(VApp, [h(VContent, [h('RouterView')])]),
+  render: h => h(VApp, [h('RouterView')]),
   mounted: () => {
     loading.counter -= 1;
   }

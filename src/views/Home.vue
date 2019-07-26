@@ -1,55 +1,36 @@
 <template>
   <v-content>
-    <v-app-bar color="deep-purple accent-4" dark>
-      <v-btn icon to="/">
-        <v-icon>mdi-poll</v-icon>
-      </v-btn>
-      <v-toolbar-title>QuickCount</v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-menu left bottom>
-        <template v-slot:activator="{ on }">
-          <v-btn icon v-on="on">
-            <v-icon>mdi-dots-vertical</v-icon>
-          </v-btn>
-        </template>
-        <v-list>
-          <v-list-item to="/about">
-            <v-list-item-title>Tentang</v-list-item-title>
-          </v-list-item>
-          <v-list-item to="/voter">
-            <v-list-item-title>Voters</v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
-    </v-app-bar>
+    <Navbar />
     <v-container fluid fill-height>
       <v-layout align-center justify-center>
         <v-flex xs12 sm8 md6>
           <v-card>
-            <v-toolbar color="primary" dark>
-              <v-toolbar-title>Daftar Quick Count</v-toolbar-title>
-            </v-toolbar>
-            <v-list-item
-              :to="'/result/' + index"
-              v-for="(item, index) of list"
-              :key="index"
-            >
-              <v-list-item-avatar>
-                <v-icon
-                  v-if="item.fetched"
-                  v-text="item.statusIcon"
-                  :class="item.statusClass"
-                ></v-icon>
-                <v-progress-circular v-else indeterminate>
-                </v-progress-circular>
-              </v-list-item-avatar>
-              <v-list-item-content>
-                <v-list-item-title v-text="item.name"></v-list-item-title>
-                <v-list-item-subtitle
-                  v-text="item.status"
-                ></v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
+            <v-card-title primary-title>
+              Daftar Quick Count
+            </v-card-title>
+            <v-list>
+              <v-list-item
+                :to="'/result/' + index"
+                v-for="(item, index) of list"
+                :key="index"
+              >
+                <v-list-item-avatar>
+                  <v-icon
+                    v-if="item.fetched"
+                    v-text="item.statusIcon"
+                    :class="item.statusClass"
+                  ></v-icon>
+                  <v-progress-circular v-else indeterminate>
+                  </v-progress-circular>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title v-text="item.name"></v-list-item-title>
+                  <v-list-item-subtitle
+                    v-text="item.status"
+                  ></v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list>
           </v-card>
         </v-flex>
       </v-layout>
@@ -59,9 +40,11 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
+import Navbar from "@/components/Navbar.vue";
 
 @Component({
-  name: "Home"
+  name: "Home",
+  components: { Navbar }
 })
 export default class Home extends Vue {
   list: any[] = [];

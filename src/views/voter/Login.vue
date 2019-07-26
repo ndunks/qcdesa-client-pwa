@@ -1,43 +1,52 @@
 <template>
-  <v-container fluid fill-height>
-    <v-layout align-center justify-center>
-      <v-flex xs12 sm6 md4>
-        <v-card class="elevation-12">
-          <v-toolbar dark color="primary">
-            <v-toolbar-title>Pilih QuickCount</v-toolbar-title>
-          </v-toolbar>
-          <v-list-item v-for="(item, index) of list" :key="index" @click="pilih(index, item)">
-            <v-list-item-content>
-              <v-list-item-title>{{ item.name }}</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
+  <v-content>
+    <Navbar back  color="orange"/>
+    <v-container fluid fill-height>
+      <v-layout align-center justify-center>
+        <v-flex xs12 sm6 md4>
+          <v-card class="elevation-12">
+            <v-toolbar dark color="orange">
+              <v-toolbar-title>Pilih QuickCount</v-toolbar-title>
+            </v-toolbar>
+            <v-list-item
+              v-for="(item, index) of list"
+              :key="index"
+              @click="pilih(index, item)"
+            >
+              <v-list-item-content>
+                <v-list-item-title>{{ item.name }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-card>
+        </v-flex>
+      </v-layout>
+      <v-dialog v-model="dialog" max-width="290">
+        <v-card>
+          <v-card-title class="headline">Passcode</v-card-title>
+          <v-card-text>
+            <v-form @submit.prevent="submit">
+              <v-text-field
+                v-model="passcode"
+                label="Passcode"
+                autocomplete
+                type="password"
+                required
+              ></v-text-field>
+            </v-form>
+          </v-card-text>
         </v-card>
-      </v-flex>
-    </v-layout>
-    <v-dialog v-model="dialog" max-width="290">
-      <v-card>
-        <v-card-title class="headline">Passcode</v-card-title>
-        <v-card-text>
-          <v-form @submit.prevent="submit">
-            <v-text-field
-              v-model="passcode"
-              label="Passcode"
-              autocomplete
-              type="password"
-              required
-            ></v-text-field>
-          </v-form>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
-  </v-container>
+      </v-dialog>
+    </v-container>
+  </v-content>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
+import Navbar from "@/components/Navbar.vue";
 
 @Component({
-  name: "VoterLogin"
+  name: "VoterLogin",
+  components: { Navbar }
 })
 export default class VoterLogin extends Vue {
   dialog: boolean = false;
@@ -45,7 +54,7 @@ export default class VoterLogin extends Vue {
   passcode = '';
   selectedIndex = -1;
   created() {
-    if( typeof(window['WebSocket']) != 'function' ){
+    if (typeof (window['WebSocket']) != 'function') {
       alert('Perangkat anda tidak mendukung');
     }
     this.$api.listQuickcount().then(list => this.list = list)

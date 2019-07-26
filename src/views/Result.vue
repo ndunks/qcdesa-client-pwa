@@ -1,32 +1,6 @@
 <template>
   <v-content>
-    <v-app-bar color="deep-purple accent-4" dark>
-      <v-btn icon to="/">
-        <v-icon>mdi-poll</v-icon>
-      </v-btn>
-      <v-toolbar-title v-text="title"></v-toolbar-title>
-      <v-spacer></v-spacer>
-
-      <v-menu left bottom>
-        <template v-slot:activator="{ on }">
-          <v-btn icon v-on="on">
-            <v-icon>mdi-dots-vertical</v-icon>
-          </v-btn>
-        </template>
-
-        <v-list>
-          <v-list-item to="/">
-            <v-list-item-title>Home</v-list-item-title>
-          </v-list-item>
-          <v-list-item to="/about">
-            <v-list-item-title>About</v-list-item-title>
-          </v-list-item>
-          <v-list-item to="/voter">
-            <v-list-item-title>Voter</v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
-    </v-app-bar>
+    <Navbar back :color="color" :title="title" />
     <v-container fluid grid-list-md>
       <v-layout v-if="!vote" align-center justify-center>
         <v-flex xs12 sm6 md4>
@@ -63,9 +37,11 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import { setInterval, clearTimeout, setTimeout } from 'timers';
+import Navbar from "@/components/Navbar.vue";
 
 @Component({
-  name: "Result"
+  name: "Result",
+  components: { Navbar }
 })
 export default class Result extends Vue {
   vote: any = null;
@@ -78,6 +54,18 @@ export default class Result extends Vue {
 
   get title() {
     return this.vote ? `${this.vote.name}: ${this.status}` : this.status;
+  }
+  get color() {
+    switch (this.status) {
+      case 'Selesai':
+        return 'success';
+      case 'Belum dimulai':
+        return 'grey';
+      case 'Sedang Berlangsung':
+        return 'warning';
+      default:
+        return null;
+    }
   }
 
   created() {
