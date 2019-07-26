@@ -16,11 +16,11 @@
               >
                 <v-list-item-avatar>
                   <v-icon
-                    v-if="item.fetched"
+                    v-show="item.fetched"
                     v-text="item.statusIcon"
                     :class="item.statusClass"
                   ></v-icon>
-                  <v-progress-circular v-else indeterminate>
+                  <v-progress-circular v-show="!item.fetched" indeterminate>
                   </v-progress-circular>
                 </v-list-item-avatar>
                 <v-list-item-content>
@@ -50,7 +50,7 @@ export default class Home extends Vue {
   list: any[] = [];
   created() {
     this.$api.listQuickcount().then(list => {
-      this.list = list.filter( v => !v.hide);
+      this.list = list.filter(v => !v.hide);
       list.forEach(this.fetch)
     })
   }
@@ -65,37 +65,48 @@ export default class Home extends Vue {
     'Sedang Berlangsung': 'warning white--text',
   }
   fetch = (item, index, list) => {
-    const url = `${this.$api.url}/public/${index}.json`;
-    fetch(url).then(
-      res => {
-        console.log(res.status, res.statusText);
-        if (res.status == 404) {
-          throw "NOTTT FOUND";
-
-        } else {
-          res.json().then(
-            json => {
-              this.$set(item, 'status', json.finished ? 'Selesai' : 'Sedang Berlangsung');
-            }
-          );
+    let fetchedTps = 0;
+    for (let tpsId in item.locations) {
+      const tps = item.locations[tpsId];
+      fetch(`${this.$api.url}/public/${index}-${tpsId}.json`).then(
+        res => {
+          if (res.status == 404) {
+            this.$set(tps, 'status', 'Belum dimulai');
+          } else {
+            res.json().then(
+              json => {
+                this.$set(tps, 'status', json.finished ? 'Selesai' : 'Sedang Berlangsung');
+              }
+            );
+          }
         }
-      }
-    ).catch(
-      error => {
-        console.log('FEER', error);
-        this.$set(item, 'status', 'Belum dimulai');
-
-      }
-    ).finally(() => {
-
-      this.$set(item, 'statusIcon', this.statusIcon[item.status]);
-      this.$set(item, 'statusClass', this.statusClass[item.status]);
-      this.$set(item, 'fetched', true);
-    })
-  }
-  pilih(index, item) {
-
+      ).finally(() => {
+        this.$set(tps, 'statusIcon', this.statusIcon[tps.status]);
+        this.$set(tps, 'statusClass', this.statusClass[tps.status]);
+        this.$set(tps, 'fetched', true);
+        if (++fetchedTps == item.locations.length) {
+          this.onAllTpsFetched(item);
+        }
+      })
+    }
   }
 
+  onAllTpsFetched(item) {
+    const allStatus = item.locations.reduce((all, c) => {
+      all[c.status]++;
+      return all;
+    }, {
+        'Selesai': 0, 'Sedang Berlangsung': 0, 'Belum dimulai': 0
+      })
+
+    this.$set(item, 'status', Object.keys(allStatus)
+      .reduce(
+        (cur, v, i) => allStatus[v] == item.locations.length ? v : cur,
+        'Sedang Berlangsung'));
+    this.$set(item, 'statusIcon', this.statusIcon[item.status]);
+    this.$set(item, 'statusClass', this.statusClass[item.status]);
+    this.$set(item, 'allStatus', allStatus);
+    this.$set(item, 'fetched', true);
+  }
 }
 </script>
