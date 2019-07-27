@@ -2,7 +2,7 @@
   <v-content>
     <Navbar back :color="color" :title="title" />
     <v-container grid-list-md>
-      <v-layout v-if="vote" wrap>
+      <v-layout v-if="ready" wrap>
         <v-flex xs12 sm6 md4 xl4>
           <v-card height="100%">
             <v-list-item two-line>
@@ -200,35 +200,45 @@ import Navbar from "@/components/Navbar.vue";
   name: "Result",
   components: { Navbar }
 })
-export default class Result extends Vue {
-  vote: any = null;
-  result: any = null;
-  results: any[] = [];
-  status: string = '';
+export default class Result extends Vue implements Vote, VoteResult<VoteCandidate & VoteReactive> {
+  name: string = null as any
+  desc: string = null as any
+  candidates: Array<VoteCandidate & VoteReactive> = null as any
+  locations: Array<VoteLocation & VoteResult<VoteCandidate & VoteReactive>> = null as any
 
+  status: VoteStatus = null as any;
+  started = 0
+  accepted = 0
+  declined = 0
+  total = 0
+  updated = 0
+  participant = 0
+  // Computed after all Tps Result finish
+  results: Array<VoteCandidate & VoteReactive> = []
+  sortedResults: Array<VoteCandidate & VoteReactive> = []
+  
+  id = 0
+  ready = false;
   _timer: number = 0;
-  sortedResults: any[] = []
   get dimulai() {
-    return this.result ? new Date(this.result.started).toLocaleString() : '-'
+    return this.started ? new Date(this.started).toLocaleString() : '-'
   }
-  get details() {
-    const detail = {};
-    if (this.result) {
-      detail['Suara Sah'] = this.result.accepted;
-      detail['Suara Tidak Sah'] = this.result.declined;
-      detail['Suara Total'] = this.result.total;
-    }
-    detail['Total Pemilih'] = this.vote.participant;
-    return detail;
+
+  details = {
+    'Total Pemilih': 0,
+    'Suara Sah': 0,
+    'Suara Tidak Sah': 0,
+    'Suara Total': 0,
   }
+
   get title() {
-    return this.vote ? `${this.vote.name}: ${this.status}` : this.status;
+    return this.name ? `${this.name}: ${this.status}` : this.status;
   }
   get color() {
     switch (this.status) {
       case 'Selesai':
         return 'success';
-      case 'Belum dimulai':
+      case 'Belum Dimulai':
         return 'grey';
       case 'Sedang Berlangsung':
         return 'warning';
@@ -237,60 +247,89 @@ export default class Result extends Vue {
     }
   }
   get percent() {
-    return (this.result ? (100 / this.vote.participant) * this.result.total : 0).toFixed(2);
+    return ((100 / this.participant) * this.total).toFixed(2);
   }
+
   created() {
-    const id = parseInt(this.$route.params.id);
+    this.id = parseInt(this.$route.params.id);
     this.$api.listQuickcount().then(list => {
-      if (!list[id]) {
+      if (!list[this.id]) {
         return this.$router.push('/');
       }
-      this.vote = list[id];
-
-      this.results = this.vote.candidates.map((v, i) => {
+      const vote = list[this.id];
+      // Set all property from vote
+      for (let field in vote) {
+        this[field] = vote[field];
+      }
+      // result total on all TPS
+      this.candidates.forEach((v, i) => {
         this.$set(v, 'count', '?');
         this.$set(v, 'pos', v.number);
         this.$set(v, 'move', '');
         this.$set(v, 'moveColor', '');
-
-        return v;
       })
 
+      // Candidate and result are combined
+      this.results = this.candidates;
+
+      this.locations.forEach((loc: VoteLocation, ii) => {
+        if (typeof (loc.participant) == 'string') {
+          loc.participant = parseInt(loc.participant);
+        }
+
+        this.$set(loc, 'started', 0)
+        this.$set(loc, 'accepted', 0)
+        this.$set(loc, 'declined', 0)
+        this.$set(loc, 'total', 0)
+        this.$set(loc, 'results', [])
+        this.$set(loc, 'updated', 0)
+
+        this.$set(loc, 'status', null)
+        this.$set(loc, 'sortedResults', []);
+        const locRes = loc as VoteLocation & VoteResult<VoteCandidate & VoteReactive>;
+        // Clone all candidate to loc resuts
+        this.candidates.forEach((v, i) => {
+          for (let f in v) {
+            this.$set(locRes.results[i], f, v[f]);
+          }
+        })
+        this.details['Total Pemilih'] += loc.participant;
+      })
+      this.ready = true;
       this.loadResult();
     })
   }
   beforeDestroy() {
-    console.log('Destry call');
-
     clearTimeout(this.$data._timer);
     this.$data._timer = undefined;
   }
+  /** Runtime */
   loadResult() {
-    const url = `${this.$api.url}/public/${this.$route.params.id}.json?${Date.now().toString(36)}=${Date.now().toString(36)}`;
-    return fetch(url).then(
-      res => {
-        if (res.status == 404) {
-          this.status = 'Belum dimulai';
-        } else {
-          return res.json().then(
-            result => {
-              this.result = result;
-              this.status = this.result.finished ? 'Selesai' : 'Sedang Berlangsung';
-              this.result.results.forEach((v, i) => this.results[i].count = v);
-              this.sortedResults = this.results.slice().sort((a, b) => b.count - a.count)
-                .map((v, i) => {
-                  // update position
-                  v.move = (i + 1 == v.pos) ? '' : (i + 1 > v.pos ? 'mdi-arrow-down' : 'mdi-arrow-up');
-                  v.moveColor = (i + 1 == v.pos) ? '' : (i + 1 > v.pos ? 'error' : 'success');
-                  v.pos = i + 1;
-                  return v;
-                })
-            }
-          );
+    if (this.status == 'Selesai') {
+      console.log('Status selesain, runtime checker off');
+      return;
+    }
+    this.loadTps().then((allStatus: VoteStatusObj<number>) => {
+      console.log('resolved', allStatus);
+      // Determine the most stats, if all 'Selesai' or 'Belum Berjalan' mean it,
+      // if status is mixed, mean Sedang Berlangsung,
+      this.status = (Object.keys(allStatus) as VoteStatus[])
+        .reduce(
+          (cur, v, i) => allStatus[v] == this.locations.length ? v : cur,
+          'Sedang Berlangsung' as VoteStatus
+        );
 
-        }
-      }
-    ).then(() => {
+      this.started = this.locations.reduce(
+        (min, v) => min > v.started ? v.started : min,
+        this.locations[0].started);
+      this.updated = this.locations.reduce(
+        (max, v) => max < v.updated ? v.updated : max,
+        this.locations[0].updated);
+
+      this.accepted = this.locations.reduce((sum, v) => sum + v.accepted, 0);
+      this.declined = this.locations.reduce((sum, v) => sum + v.declined, 0);
+      this.total = this.accepted + this.declined;
+      Result.sortResults.call(this)
       // Runtime
       if (typeof (this.$data._timer) == 'undefined') {
         return;
@@ -301,6 +340,61 @@ export default class Result extends Vue {
       );
 
     }).catch(console.error)
+  }
+  async loadTps(): Promise<VoteStatusObj> {
+    return new Promise((resolve, reject) => {
+      let fetchedTps = 0;
+      const uniq = `${Date.now().toString(36)}=${Date.now().toString(36)}`;
+      for (let tpsId in this.locations) {
+        const url = `${this.$api.url}/public/${this.id}-${tpsId}.json?` + uniq;
+        const tps = this.locations[tpsId];
+        fetch(url).then(async (res) => {
+          if (res.status < 400) {
+            await res.json().then(
+              (json: VoteResultRaw<number>) => {
+                for (let field in json) {
+                  tps[field] = json[field];
+                }
+                tps.status = json.finished ? 'Selesai' : 'Sedang Berlangsung';
+                Result.sortResults.call(tps);
+              }
+            );
+          } else {
+            tps.status = 'Belum Dimulai';
+          }
+          if (++fetchedTps == this.locations.length) {
+            // Sumarize all status on all TPS
+            const allStatus: VoteStatusObj<number> = this.locations.reduce((all, c) => {
+              all[c.status as VoteStatus]++;
+              return all;
+            }, {
+              'Selesai': 0,
+              'Sedang Berlangsung': 0,
+              'Belum Dimulai': 0
+            } as VoteStatusObj<number>)
+            resolve(allStatus)
+          }
+        }).catch(e => console.log(e.message))
+      }
+    })
+  }
+
+  async onAllTpsLoaded() {
+
+  }
+
+
+  static sortResults = function (this: VoteResult<VoteCandidate & VoteReactive>) {
+    //this.results.forEach((v, i) => this.results[i].count = v.count);
+    this.sortedResults = this.results.slice().sort((a, b) => b.count - a.count)
+      .map((v, i) => {
+        // update position
+        v.move = (i + 1 == v.pos) ? '' : (i + 1 > v.pos ? 'mdi-arrow-down' : 'mdi-arrow-up');
+        v.moveColor = (i + 1 == v.pos) ? '' : (i + 1 > v.pos ? 'error' : 'success');
+        v.pos = i + 1;
+        return v;
+      })
+
   }
 
 }

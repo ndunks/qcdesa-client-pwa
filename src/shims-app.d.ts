@@ -53,8 +53,7 @@ declare global {
     candidates: VoteCandidate[]
     locations: VoteLocation[]
   }
-
-  interface VoteResult<T extends any=number> {
+  interface VoteResultRaw<T = number> {
     started: number
     finished?: number
     accepted: number
@@ -63,13 +62,18 @@ declare global {
     results: T[]
     updated: number
   }
-  interface VoteSummaryResult<T extends any = number> {
+
+  interface VoteResult<T extends any> extends VoteResultRaw<T> {
     status: VoteStatus
+    sortedResults: T[]
+  }
+  /* 
+  interface VoteSummaryResult<T extends any = number> {
     result: VoteResult
     results: Array<VoteCandidate & VoteReactive>
     sortedResults: Array<VoteCandidate & VoteReactive>
   }
-
+ */
   interface VoteReactive {
     count: number
     pos: number

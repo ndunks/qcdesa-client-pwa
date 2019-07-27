@@ -59,8 +59,11 @@ export class Api {
     /**
      * Get list of quick count
      */
-    listQuickcount() {
-        return this.sendGet('/public/data.json', {
+    listQuickcount(useCache = false) {
+        if(useCache && this._cache['data.json']){
+            return Promise.resolve(this._cache['data.json'] as Vote[]);
+        }
+        return this.sendGet<Vote[]>('/public/data.json', {
                 [Date.now().toString(36)]: Date.now().toString(36)
             }).then(list => this._cache['data.json'] = list);
     }
