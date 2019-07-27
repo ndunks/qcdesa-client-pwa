@@ -35,7 +35,7 @@ declare global {
   * Access Api every where
   */
   const $api: Api
-  type VoteStatus = 'Selesai' | 'Belum Dimulai' | 'Sedang Berlangsung'
+  type VoteStatus = 'Selesai' | 'Belum Dimulai' | 'Dihitung'
   type VoteStatusObj<T = any> = { [status in VoteStatus]: T }
   interface VoteCandidate {
     name: string
@@ -50,6 +50,7 @@ declare global {
   interface Vote {
     name: string
     desc: string
+    hide?: boolean
     candidates: VoteCandidate[]
     locations: VoteLocation[]
   }

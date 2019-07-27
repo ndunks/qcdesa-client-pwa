@@ -58,12 +58,12 @@ export default class Home extends Vue {
   statusIcon: VoteStatusObj<string> = {
     'Selesai': 'mdi-check-all',
     'Belum Dimulai': 'mdi-alarm-off',
-    'Sedang Berlangsung': 'mdi-alarm',
+    'Dihitung': 'mdi-alarm',
   }
   statusClass: VoteStatusObj<string> = {
     'Selesai': 'success white--text',
     'Belum Dimulai': 'grey white--text',
-    'Sedang Berlangsung': 'warning white--text',
+    'Dihitung': 'warning white--text',
   }
 
   fetch = (item, index, list) => {
@@ -77,7 +77,7 @@ export default class Home extends Vue {
           } else {
             res.json().then(
               json => {
-                this.$set<VoteStatus>(tps, 'status', json.finished ? 'Selesai' : 'Sedang Berlangsung');
+                this.$set<VoteStatus>(tps, 'status', json.finished ? 'Selesai' : 'Dihitung');
               }
             );
           }
@@ -99,14 +99,14 @@ export default class Home extends Vue {
       return all;
     }, {
       'Selesai': 0,
-      'Sedang Berlangsung': 0,
+      'Dihitung': 0,
       'Belum Dimulai': 0
     } as VoteStatusObj<number>)
 
     this.$set<VoteStatus>(item, 'status', (Object.keys(allStatus) as VoteStatus[])
       .reduce(
         (cur: VoteStatus, v: VoteStatus, i) => allStatus[v] == item.locations.length ? v : cur,
-        'Sedang Berlangsung' as VoteStatus)
+        'Dihitung' as VoteStatus)
     );
     this.$set(item, 'statusIcon', this.statusIcon[item.status]);
     this.$set(item, 'statusClass', this.statusClass[item.status]);

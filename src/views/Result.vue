@@ -7,12 +7,12 @@
           <v-card height="100%">
             <v-list-item two-line>
               <v-list-item-content>
-                <v-list-item-title class="headline"
-                  >Perolehan Suara</v-list-item-title
-                >
-                <v-list-item-subtitle
-                  >Diurutkan berdasarkan jumlah pemilih</v-list-item-subtitle
-                >
+                <v-list-item-title class="headline">
+                  Perolehan Suara
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  Diurutkan berdasarkan jumlah pemilih
+                </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
             <v-list v-if="sortedResults.length">
@@ -53,18 +53,15 @@
               <v-list-item-content>
                 <v-list-item-title
                   class="headline"
-                  v-text="vote.name"
+                  v-text="name"
                 ></v-list-item-title>
-                <v-list-item-subtitle v-text="vote.desc"></v-list-item-subtitle>
+                <v-list-item-subtitle v-text="desc"></v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
             <v-card-text>
               <v-layout align-center>
                 <v-flex xs6 text-center>
-                  <div
-                    class="display-3"
-                    v-text="result ? result.total : '?'"
-                  ></div>
+                  <div class="display-3" v-text="total || '?'"></div>
                   <div class="subtitle">Suara</div>
                 </v-flex>
                 <v-flex xs6 text-center>
@@ -90,16 +87,19 @@
               <v-list-item>
                 <v-list-item-title>Dimulai</v-list-item-title>
                 <v-list-item-subtitle class="text-right">
-                  <v-chip :color="color" v-text="dimulai"></v-chip>
+                  <v-chip :color="color" v-text="startedDate"></v-chip>
+                </v-list-item-subtitle>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-title>Diupdate</v-list-item-title>
+                <v-list-item-subtitle class="text-right">
+                  <v-chip :color="color" v-text="updatedDate"></v-chip>
                 </v-list-item-subtitle>
               </v-list-item>
               <v-list-item>
                 <v-list-item-title>Jumlah Kandidat</v-list-item-title>
                 <v-list-item-subtitle class="text-right">
-                  <v-chip
-                    :color="color"
-                    v-text="vote.candidates.length"
-                  ></v-chip>
+                  <v-chip :color="color" v-text="candidates.length"></v-chip>
                 </v-list-item-subtitle>
               </v-list-item>
             </v-list>
@@ -109,12 +109,12 @@
           <v-card height="100%">
             <v-list-item two-line>
               <v-list-item-content>
-                <v-list-item-title class="headline"
-                  >Statistik</v-list-item-title
-                >
-                <v-list-item-subtitle
-                  >Informasi perhitungan rinci</v-list-item-subtitle
-                >
+                <v-list-item-title class="headline">
+                  Statistik Total
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  Informasi perhitungan rinci
+                </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
             <v-list>
@@ -192,7 +192,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue, Watch } from "vue-property-decorator";
 import { setInterval, clearTimeout, setTimeout } from 'timers';
 import Navbar from "@/components/Navbar.vue";
 
@@ -203,36 +203,39 @@ import Navbar from "@/components/Navbar.vue";
 export default class Result extends Vue implements Vote, VoteResult<VoteCandidate & VoteReactive> {
   name: string = null as any
   desc: string = null as any
-  candidates: Array<VoteCandidate & VoteReactive> = null as any
-  locations: Array<VoteLocation & VoteResult<VoteCandidate & VoteReactive>> = null as any
-
-  status: VoteStatus = null as any;
+  hide?: boolean = undefined
+  candidates: Array<VoteCandidate & VoteReactive> = []
+  locations: Array<VoteLocation & VoteResult<VoteCandidate & VoteReactive>> = []
   started = 0
+  startedDate = ''
+  updated = 0
+  updatedDate = ''
+  status: VoteStatus = '' as any;
+
   accepted = 0
   declined = 0
   total = 0
-  updated = 0
   participant = 0
   // Computed after all Tps Result finish
   results: Array<VoteCandidate & VoteReactive> = []
   sortedResults: Array<VoteCandidate & VoteReactive> = []
-  
+
   id = 0
   ready = false;
   _timer: number = 0;
-  get dimulai() {
-    return this.started ? new Date(this.started).toLocaleString() : '-'
-  }
 
-  details = {
-    'Total Pemilih': 0,
-    'Suara Sah': 0,
-    'Suara Tidak Sah': 0,
-    'Suara Total': 0,
+  get details() {
+    return {
+      'Total TPS': this.locations.length,
+      'Total Pemilih': this.participant,
+      'Suara Sah': this.accepted,
+      'Suara Tidak Sah': this.declined,
+      'Suara Total': this.total,
+    }
   }
 
   get title() {
-    return this.name ? `${this.name}: ${this.status}` : this.status;
+    return this.status ? `${this.name}: ${this.status}` : this.name;
   }
   get color() {
     switch (this.status) {
@@ -240,7 +243,7 @@ export default class Result extends Vue implements Vote, VoteResult<VoteCandidat
         return 'success';
       case 'Belum Dimulai':
         return 'grey';
-      case 'Sedang Berlangsung':
+      case 'Dihitung':
         return 'warning';
       default:
         return 'primary';
@@ -249,7 +252,28 @@ export default class Result extends Vue implements Vote, VoteResult<VoteCandidat
   get percent() {
     return ((100 / this.participant) * this.total).toFixed(2);
   }
+  @Watch('status')
+  statusChanged(cur, old) {
+    console.log('StatusCHanged', cur, old);
 
+  }
+  getDate(field: 'updated' | 'started', getMax = false): string {
+    let hasValues;
+    if (this.locations && (hasValues = this.locations.filter(v => !!v[field])).length) {
+      // find minimum or maximum of
+      const found = hasValues.reduce(
+        (val, v) => (getMax ?
+          (val < (v[field] as number)) :
+          (val > (v[field] as number))
+        ) ? v[field] as number : val,
+        this.locations[0][field] as number
+      );
+      console.log('GetDate', field, hasValues, found);
+      this[field] = found;
+      return new Date(found).toLocaleString()
+    }
+    return '-' as any;
+  }
   created() {
     this.id = parseInt(this.$route.params.id);
     this.$api.listQuickcount().then(list => {
@@ -257,9 +281,9 @@ export default class Result extends Vue implements Vote, VoteResult<VoteCandidat
         return this.$router.push('/');
       }
       const vote = list[this.id];
-      // Set all property from vote
-      for (let field in vote) {
-        this[field] = vote[field];
+      // Set all property from vote, skip some getter
+      for (let f in vote) {
+        this[f] = vote[f];
       }
       // result total on all TPS
       this.candidates.forEach((v, i) => {
@@ -289,16 +313,21 @@ export default class Result extends Vue implements Vote, VoteResult<VoteCandidat
         const locRes = loc as VoteLocation & VoteResult<VoteCandidate & VoteReactive>;
         // Clone all candidate to loc resuts
         this.candidates.forEach((v, i) => {
+          this.$set(locRes.results, i, {});
           for (let f in v) {
             this.$set(locRes.results[i], f, v[f]);
           }
         })
-        this.details['Total Pemilih'] += loc.participant;
+        this.participant += loc.participant;
       })
       this.ready = true;
-      this.loadResult();
+      this.$nextTick(() => {
+        console.log('Tick Load results');
+        this.loadResult();
+      })
     })
   }
+
   beforeDestroy() {
     clearTimeout(this.$data._timer);
     this.$data._timer = undefined;
@@ -311,24 +340,24 @@ export default class Result extends Vue implements Vote, VoteResult<VoteCandidat
     }
     this.loadTps().then((allStatus: VoteStatusObj<number>) => {
       console.log('resolved', allStatus);
-      // Determine the most stats, if all 'Selesai' or 'Belum Berjalan' mean it,
-      // if status is mixed, mean Sedang Berlangsung,
+      // Determine the most stats, if all 'Selesai' or 'Belum Dihitung' mean it,
+      // if status is mixed, mean Dihitung,
       this.status = (Object.keys(allStatus) as VoteStatus[])
         .reduce(
           (cur, v, i) => allStatus[v] == this.locations.length ? v : cur,
-          'Sedang Berlangsung' as VoteStatus
+          'Dihitung' as VoteStatus
         );
-
-      this.started = this.locations.reduce(
-        (min, v) => min > v.started ? v.started : min,
-        this.locations[0].started);
-      this.updated = this.locations.reduce(
-        (max, v) => max < v.updated ? v.updated : max,
-        this.locations[0].updated);
 
       this.accepted = this.locations.reduce((sum, v) => sum + v.accepted, 0);
       this.declined = this.locations.reduce((sum, v) => sum + v.declined, 0);
       this.total = this.accepted + this.declined;
+      this.startedDate = this.getDate('started')
+      this.updatedDate = this.getDate('updated', true)
+      this.candidates.forEach((v, i) => {
+        v.count = this.locations.reduce(
+          (sum, loc, ii) => sum + (isNaN(loc.results[i].count) ? 0 : loc.results[i].count)
+          , 0)
+      })
       Result.sortResults.call(this)
       // Runtime
       if (typeof (this.$data._timer) == 'undefined') {
@@ -352,10 +381,14 @@ export default class Result extends Vue implements Vote, VoteResult<VoteCandidat
           if (res.status < 400) {
             await res.json().then(
               (json: VoteResultRaw<number>) => {
+                json.results.forEach((v, i) => tps.results[i].count = v);
+                // results is changed with object, dont clone it!
+                delete json.results;
                 for (let field in json) {
                   tps[field] = json[field];
                 }
-                tps.status = json.finished ? 'Selesai' : 'Sedang Berlangsung';
+                // Map the result
+                tps.status = json.finished ? 'Selesai' : 'Dihitung';
                 Result.sortResults.call(tps);
               }
             );
@@ -369,7 +402,7 @@ export default class Result extends Vue implements Vote, VoteResult<VoteCandidat
               return all;
             }, {
               'Selesai': 0,
-              'Sedang Berlangsung': 0,
+              'Dihitung': 0,
               'Belum Dimulai': 0
             } as VoteStatusObj<number>)
             resolve(allStatus)
