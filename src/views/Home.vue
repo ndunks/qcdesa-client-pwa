@@ -47,6 +47,7 @@ import Navbar from "@/components/Navbar.vue";
   components: { Navbar }
 })
 export default class Home extends Vue {
+  //$set:(target: Object, field: 'status', value: VoteStatus) => VoteStatus
   list: any[] = [];
   created() {
     this.$api.listQuickcount().then(list => {
@@ -54,16 +55,17 @@ export default class Home extends Vue {
       list.forEach(this.fetch)
     })
   }
-  statusIcon = {
+  statusIcon: VoteStatusObj<string> = {
     'Selesai': 'mdi-check-all',
-    'Belum dimulai': 'mdi-alarm-off',
+    'Belum Dimulai': 'mdi-alarm-off',
     'Sedang Berlangsung': 'mdi-alarm',
   }
-  statusClass = {
+  statusClass: VoteStatusObj<string> = {
     'Selesai': 'success white--text',
-    'Belum dimulai': 'grey white--text',
+    'Belum Dimulai': 'grey white--text',
     'Sedang Berlangsung': 'warning white--text',
   }
+
   fetch = (item, index, list) => {
     let fetchedTps = 0;
     for (let tpsId in item.locations) {
@@ -71,11 +73,11 @@ export default class Home extends Vue {
       fetch(`${this.$api.url}/public/${index}-${tpsId}.json`).then(
         res => {
           if (res.status == 404) {
-            this.$set(tps, 'status', 'Belum dimulai');
+            this.$set<VoteStatus>(tps, 'status', 'Belum Dimulai');
           } else {
             res.json().then(
               json => {
-                this.$set(tps, 'status', json.finished ? 'Selesai' : 'Sedang Berlangsung');
+                this.$set<VoteStatus>(tps, 'status', json.finished ? 'Selesai' : 'Sedang Berlangsung');
               }
             );
           }
@@ -92,17 +94,20 @@ export default class Home extends Vue {
   }
 
   onAllTpsFetched(item) {
-    const allStatus = item.locations.reduce((all, c) => {
+    const allStatus: VoteStatusObj<number> = item.locations.reduce((all, c) => {
       all[c.status]++;
       return all;
     }, {
-        'Selesai': 0, 'Sedang Berlangsung': 0, 'Belum dimulai': 0
-      })
+      'Selesai': 0,
+      'Sedang Berlangsung': 0,
+      'Belum Dimulai': 0
+    } as VoteStatusObj<number>)
 
-    this.$set(item, 'status', Object.keys(allStatus)
+    this.$set<VoteStatus>(item, 'status', (Object.keys(allStatus) as VoteStatus[])
       .reduce(
-        (cur, v, i) => allStatus[v] == item.locations.length ? v : cur,
-        'Sedang Berlangsung'));
+        (cur: VoteStatus, v: VoteStatus, i) => allStatus[v] == item.locations.length ? v : cur,
+        'Sedang Berlangsung' as VoteStatus)
+    );
     this.$set(item, 'statusIcon', this.statusIcon[item.status]);
     this.$set(item, 'statusClass', this.statusClass[item.status]);
     this.$set(item, 'allStatus', allStatus);
