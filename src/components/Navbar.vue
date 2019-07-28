@@ -24,12 +24,6 @@
           </v-list-item-icon>
           <v-list-item-title>Voters</v-list-item-title>
         </v-list-item>
-        <v-list-item to="/admin">
-          <v-list-item-icon>
-            <v-icon>mdi-account-tie</v-icon>
-          </v-list-item-icon>
-          <v-list-item-title>Admin</v-list-item-title>
-        </v-list-item>
         <v-divider></v-divider>
         <v-list-item to="/">
           <v-list-item-icon>
@@ -65,7 +59,11 @@ export default class Navbar extends Vue {
       this.$router.back();
     } else {
       // Go home
-      this.$router.push('/')
+      if(this.$router.currentRoute.fullPath == '/'){
+        this.$router.push('/about')
+      }else{
+        this.$router.push('/')
+      }
     }
   }
 }
