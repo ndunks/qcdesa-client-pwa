@@ -1,5 +1,5 @@
 <template functional>
-  <v-card height="100%">
+  <v-card height="100%" :flat="parent.$vuetify.breakpoint.xs" :tile="parent.$vuetify.breakpoint.xs">
     <v-list-item two-line>
       <v-list-item-content>
         <v-list-item-title class="headline">

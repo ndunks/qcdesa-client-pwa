@@ -1,10 +1,10 @@
 <template>
   <v-content>
     <Navbar back :color="color" :title="title" />
-    <v-container grid-list-md>
+    <v-container grid-list-md :class="{'pa-0': $vuetify.breakpoint.xs }">
       <v-layout v-if="ready" wrap>
         <v-flex xs12 sm6 md4 xl4>
-          <v-card height="100%">
+          <v-card :flat="$vuetify.breakpoint.xs" :tile="$vuetify.breakpoint.xs" height="100%">
             <v-list-item two-line>
               <v-list-item-content>
                 <v-list-item-title class="headline">
@@ -28,7 +28,7 @@
           </v-card>
         </v-flex>
         <v-flex xs12 sm6 md4 xl4>
-          <v-card height="100%">
+          <v-card :flat="$vuetify.breakpoint.xs" :tile="$vuetify.breakpoint.xs" height="100%">
             <v-list-item two-line>
               <v-list-item-content>
                 <v-list-item-title
@@ -89,7 +89,7 @@
           <ResultDetail :details="details" />
         </v-flex>
         <v-flex xs12 sm6 md4 xl4>
-          <v-card>
+          <v-card :flat="$vuetify.breakpoint.xs" :tile="$vuetify.breakpoint.xs">
             <v-list-item two-line>
               <v-list-item-content>
                 <v-list-item-title class="headline">
@@ -110,7 +110,7 @@
                   <v-list-item-content>
                     <v-list-item-title v-text="item.name"></v-list-item-title>
                     <v-list-item-subtitle
-                      >Suara Masuk: {{ item.total }}</v-list-item-subtitle
+                      >Suara Masuk: {{ item.total }} ({{((100 / item.participant) * item.total).toFixed(2)}}%)</v-list-item-subtitle
                     >
                   </v-list-item-content>
                   <v-list-item-action>
@@ -129,7 +129,7 @@
       </v-layout>
       <v-layout v-else align-center justify-center>
         <v-flex xs12 sm6 md4>
-          <v-sheet dark :color="color" class="text-center pa-5 elevation-3">
+          <v-sheet :flat="$vuetify.breakpoint.xs" :tile="$vuetify.breakpoint.xs" dark :color="color" class="text-center pa-5 elevation-3">
             <v-progress-circular large indeterminate></v-progress-circular>
             <h1 class="title">Please Wait</h1>
           </v-sheet>

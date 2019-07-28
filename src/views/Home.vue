@@ -1,10 +1,10 @@
 <template>
   <v-content>
     <Navbar />
-    <v-container fluid fill-height>
+    <v-container fluid :fill-height="$vuetify.breakpoint.smAndUp" :class="{'pa-0': $vuetify.breakpoint.xs }">
       <v-layout align-center justify-center>
         <v-flex xs12 sm8 md6>
-          <v-card>
+          <v-card :flat="$vuetify.breakpoint.xs"  :tile="$vuetify.breakpoint.xs">
             <v-card-title primary-title>
               Daftar Quick Count
             </v-card-title>
