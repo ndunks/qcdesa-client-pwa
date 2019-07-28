@@ -106,32 +106,64 @@
           </v-card>
         </v-flex>
         <v-flex xs12 sm6 md4 xl4>
-          <v-card height="100%">
+          <ResultDetail :details="details" />
+        </v-flex>
+        <v-flex xs12 sm6 md4 xl4>
+          <v-card>
             <v-list-item two-line>
               <v-list-item-content>
                 <v-list-item-title class="headline">
-                  Statistik Total
+                  Ringkasan Setiap TPS
                 </v-list-item-title>
                 <v-list-item-subtitle>
-                  Informasi perhitungan rinci
+                  Data pada setiap TPS
                 </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
             <v-list>
-              <v-list-item v-for="(item, index) in details" :key="index">
-                <v-list-item-title>{{ index }}</v-list-item-title>
-                <v-list-item-subtitle class="text-right">
-                  {{ item }}
-                </v-list-item-subtitle>
-              </v-list-item>
+              <v-list-group
+                v-for="item in locations"
+                :key="item.name"
+                no-action
+              >
+                <template v-slot:activator>
+                  <v-list-item-content>
+                    <v-list-item-title v-text="item.name"></v-list-item-title>
+                    <v-list-item-subtitle
+                      >Suara Masuk: {{ item.total }}</v-list-item-subtitle
+                    >
+                  </v-list-item-content>
+                  <v-list-item-action>
+                    <v-list-item-action-text
+                      ><v-chip :class="statusClass[item.status]">{{
+                        item.status
+                      }}</v-chip></v-list-item-action-text
+                    >
+                  </v-list-item-action>
+                </template>
+
+                <v-list-item
+                  v-for="subItem in item.sortedResults"
+                  :key="subItem.name"
+                >
+                  <v-list-item-content>
+                    <v-list-item-title
+                      v-text="subItem.name"
+                    ></v-list-item-title>
+                  </v-list-item-content>
+                  <v-list-item-avatar>
+                    <v-icon
+                      :v-show="!!subItem.move"
+                      :color="subItem.moveColor"
+                      v-text="subItem.move"
+                    ></v-icon>
+                    {{ subItem.count }}
+                  </v-list-item-avatar>
+                </v-list-item>
+              </v-list-group>
             </v-list>
-            <v-divider></v-divider>
-            <v-card-actions>
-              <v-btn text>Lihat Log</v-btn>
-            </v-card-actions>
           </v-card>
         </v-flex>
-
         <v-layout wrap mt-5>
           <v-flex
             xs12
@@ -141,41 +173,7 @@
             v-for="item of sortedResults"
             :key="item.number"
           >
-            <v-card>
-              <v-img
-                v-if="item.image"
-                class="white--text"
-                height="200px"
-                :src="item.image"
-              >
-                <v-avatar :color="item.pos < 2 ? 'success' : color">{{
-                  item.pos
-                }}</v-avatar>
-              </v-img>
-              <v-card-title>
-                {{ item.name }}
-              </v-card-title>
-              <v-list>
-                <v-list-item>
-                  <v-list-item-title>Perolehan Suara</v-list-item-title>
-                  <v-list-item-subtitle class="text-right">
-                    <v-chip>{{ item.count }}</v-chip>
-                  </v-list-item-subtitle>
-                </v-list-item>
-                <v-list-item>
-                  <v-list-item-title>Peringkat</v-list-item-title>
-                  <v-list-item-subtitle class="text-right">
-                    <v-chip>{{ item.pos }}</v-chip>
-                  </v-list-item-subtitle>
-                </v-list-item>
-                <v-list-item>
-                  <v-list-item-title>Nomor Urut</v-list-item-title>
-                  <v-list-item-subtitle class="text-right">
-                    <v-chip>{{ item.number }}</v-chip>
-                  </v-list-item-subtitle>
-                </v-list-item>
-              </v-list>
-            </v-card>
+            <ResultCandidate v-bind="item" />
           </v-flex>
         </v-layout>
       </v-layout>
@@ -193,12 +191,15 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
-import { setInterval, clearTimeout, setTimeout } from 'timers';
 import Navbar from "@/components/Navbar.vue";
+//@ts-ignore
+import ResultDetail from "@/components/ResultDetail.vue";
+//@ts-ignore
+import ResultCandidate from "@/components/ResultCandidate.vue";
 
 @Component({
   name: "Result",
-  components: { Navbar }
+  components: { Navbar, ResultDetail, ResultCandidate }
 })
 export default class Result extends Vue implements Vote, VoteResult<VoteCandidate & VoteReactive> {
   name: string = null as any
@@ -223,6 +224,17 @@ export default class Result extends Vue implements Vote, VoteResult<VoteCandidat
   id = 0
   ready = false;
   _timer: number = 0;
+
+  statusIcon: VoteStatusObj<string> = {
+    'Selesai': 'mdi-check-all',
+    'Belum Dimulai': 'mdi-alarm-off',
+    'Dihitung': 'mdi-alarm',
+  }
+  statusClass: VoteStatusObj<string> = {
+    'Selesai': 'success white--text',
+    'Belum Dimulai': 'grey white--text',
+    'Dihitung': 'warning white--text',
+  }
 
   get details() {
     return {
@@ -370,7 +382,7 @@ export default class Result extends Vue implements Vote, VoteResult<VoteCandidat
 
     }).catch(console.error)
   }
-  async loadTps(): Promise<VoteStatusObj> {
+  loadTps(): Promise<VoteStatusObj> {
     return new Promise((resolve, reject) => {
       let fetchedTps = 0;
       const uniq = `${Date.now().toString(36)}=${Date.now().toString(36)}`;
