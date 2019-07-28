@@ -11,6 +11,7 @@
             <v-list-item
               v-for="(item, index) of list"
               :key="index"
+              v-show="!item.hide"
               @click="pilihQuickcount(index, item)"
             >
               <v-list-item-content>
