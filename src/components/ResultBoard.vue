@@ -1,6 +1,6 @@
 <template functional>
   <div class="result-board">
-    <v-dialog eager v-for="(item, index) in props.list" :key="item.name" max-width="500">
+    <v-dialog eager v-for="(item, index) in props.list" :key="index" max-width="500">
       <template v-slot:activator="{ on }">
         <v-list-item v-on="on">
           <v-list-item-avatar :color="color" class="white--text">
