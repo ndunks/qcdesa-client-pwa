@@ -185,14 +185,20 @@ export default class VoteAddDialog extends Vue {
 
   @Watch('candidates')
   candidatesChange(current: any[] | null, old) {
-    this.candidateList = (current || [{ number: 1 }]);
-    this.$nextTick( () => {this.candidateListChanged = false})
+    if( current && current.length ){
+      // Clone it, avoid reactive trigger
+      this.candidateList = current.map( v => Object.assign({}, v) );
+      this.$nextTick( () => {this.candidateListChanged = false})
+    }
   }
 
   @Watch('locations')
   locationsChange(current: any[] | null, old) {
-    this.locationList = (current || [{ name: 'TPS 1' }]);
-    this.$nextTick( () => {this.locationListChanged = false})
+    if( current && current.length ){
+      // Clone it, avoid reactive trigger
+      this.locationList = current.map( v => Object.assign({}, v) );
+      this.$nextTick( () => {this.locationListChanged = false})
+    }
   }
 
   @Watch('candidateList', { deep: true })
