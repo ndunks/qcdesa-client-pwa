@@ -397,19 +397,16 @@ export default class Result extends Vue implements Vote, VoteResult<VoteCandidat
     })
   }
 
-  async onAllTpsLoaded() {
-
-  }
-
-
   static sortResults = function (this: VoteResult<VoteCandidate & VoteReactive>) {
     //this.results.forEach((v, i) => this.results[i].count = v.count);
     this.sortedResults = this.results.slice().sort((a, b) => b.count - a.count)
       .map((v, i) => {
         // update position
-        v.move = (i + 1 == v.pos) ? '' : (i + 1 > v.pos ? 'mdi-arrow-down' : 'mdi-arrow-up');
-        v.moveColor = (i + 1 == v.pos) ? '' : (i + 1 > v.pos ? 'error' : 'success');
-        v.pos = i + 1;
+        if( this.status != 'Belum Dimulai' ) {
+          v.move = (i + 1 == v.pos) ? '' : (i + 1 > v.pos ? 'mdi-arrow-down' : 'mdi-arrow-up');
+          v.moveColor = (i + 1 == v.pos) ? '' : (i + 1 > v.pos ? 'error' : 'success');
+          v.pos = i + 1;
+        }
         return v;
       })
 

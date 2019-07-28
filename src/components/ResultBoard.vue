@@ -4,7 +4,7 @@
       @click="listeners.click( item, props.locationName )">
       <v-list-item-avatar :color="color" class="white--text">
         <span style="position: absolute">{{ index + 1 }}</span>
-        <img v-if="item.image" :src="item.image" />
+        <v-img v-if="item.image" :src="item.image"></v-img>
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title v-text="item.name"></v-list-item-title>
