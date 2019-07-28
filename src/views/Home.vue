@@ -10,9 +10,9 @@
             </v-card-title>
             <v-list>
               <v-list-item
-                :to="'/result/' + index"
                 v-for="(item, index) of list"
                 :key="index"
+                :to="'/result/' + item.id"
               >
                 <v-list-item-avatar>
                   <v-icon
@@ -51,7 +51,10 @@ export default class Home extends Vue {
   list: any[] = [];
   created() {
     this.$api.listQuickcount().then(list => {
-      this.list = list.filter(v => !v.hide);
+      this.list = list.filter((v, index) => {
+        v.id = index
+        return !v.hide
+      });
       list.forEach(this.fetch)
     })
   }
