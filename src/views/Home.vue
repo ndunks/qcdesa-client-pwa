@@ -1,8 +1,8 @@
 <template>
   <v-content>
-    <Navbar />
+    <Navbar app />
     <v-container fluid :fill-height="$vuetify.breakpoint.smAndUp" :class="{'pa-0': $vuetify.breakpoint.xs }">
-      <v-layout align-center justify-center>
+      <v-layout justify-center class="pt-2">
         <v-flex xs12 sm8 md6>
           <v-card :flat="$vuetify.breakpoint.xs"  :tile="$vuetify.breakpoint.xs">
             <v-card-title primary-title>
@@ -31,6 +31,9 @@
                 </v-list-item-content>
               </v-list-item>
             </v-list>
+          </v-card>
+          <v-card class="pt-5" flat color="transparent">
+            <ListSponsor hide="true" />
           </v-card>
         </v-flex>
       </v-layout>

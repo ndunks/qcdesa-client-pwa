@@ -5,6 +5,7 @@ import vuetify from './plugins/vuetify';
 import { Api } from './app/api';
 //@ts-ignore
 import ResultCandidate from "@/components/ResultCandidate.vue";
+import ListSponsor from "@/components/ListSponsor.vue";
 
 Vue.config.productionTip = false
 Vue.use(Api, {
@@ -14,6 +15,7 @@ Vue.use(Api, {
 
 // Register GLobal Dialog
 Vue.component('ResultCandidate', ResultCandidate)
+Vue.component('ListSponsor', ListSponsor)
 
 new Vue({
   router,
