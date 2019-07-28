@@ -28,7 +28,7 @@
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title>LightCCTV</v-list-item-title>
-        <v-list-item-subtitle>Sponsor &amp; Penggagas</v-list-item-subtitle>
+        <v-list-item-subtitle>Sponsor</v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
     <v-list-item href="https://www.facebook.com/kiraboshilpk" target="_blank">
