@@ -1,6 +1,6 @@
 <template functional>
-  <div>
-    <v-dialog v-for="(item, index) in props.list" :key="item.name" max-width="500">
+  <div class="result-board">
+    <v-dialog eager v-for="(item, index) in props.list" :key="item.name" max-width="500">
       <template v-slot:activator="{ on }">
         <v-list-item v-on="on">
           <v-list-item-avatar :color="color" class="white--text">
@@ -26,3 +26,8 @@
     </v-dialog>
   </div>
 </template>
+<style>
+.result-board > .v-dialog__container {
+    position: absolute;
+}
+</style>
