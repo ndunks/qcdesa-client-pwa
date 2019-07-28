@@ -15,9 +15,7 @@
                 </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
-            <v-list v-if="sortedResults.length">
-              <ResultBoard list="sortedResults" :locations="locations"/>
-            </v-list>
+            <ResultBoard v-if="sortedResults.length" @click="candidateClick" :list="sortedResults"/>
             <v-card-text v-else-if="status == ''" class="text-center" >
               <v-progress-circular
                 :color="color"
@@ -123,7 +121,7 @@
                     >
                   </v-list-item-action>
                 </template>
-                <ResultBoard :list="item.sortedResults" :locationName="item.name"/>
+                <ResultBoard :list="item.sortedResults" @click="candidateClick" :locationName="item.name"/>
               </v-list-group>
             </v-list>
           </v-card>
@@ -138,6 +136,9 @@
         </v-flex>
       </v-layout>
     </v-container>
+    <v-dialog ref="dialog" max-width="500" scrollable v-model="dialogVisible">
+      <ResultCandidate v-bind="dialogData" @click="dialogVisible = false"/>
+    </v-dialog>
   </v-content>
 </template>
 
@@ -220,6 +221,25 @@ export default class Result extends Vue implements Vote, VoteResult<VoteCandidat
   statusChanged(cur, old) {
     console.log('StatusCHanged', cur, old);
 
+  }
+    dialogVisible = false;
+  dialogData = {
+    item: {},
+    locationName: null as any,
+    locations: null as any
+  };
+
+  candidateClick( item, locationName? ){
+    console.log('candidateClick', item, locationName);
+    this.dialogData.item = item;
+    if( locationName ){
+      this.dialogData.locationName = locationName;
+      this.dialogData.locations = null;
+    }else{
+      this.dialogData.locationName = 'Total';
+      this.dialogData.locations = this.locations;
+    }
+    this.$nextTick( () => this.dialogVisible = true )
   }
   getDate(field: 'updated' | 'started', getMax = false): string {
     let hasValues;
