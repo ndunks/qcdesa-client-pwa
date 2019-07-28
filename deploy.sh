@@ -2,3 +2,4 @@
 
 yarn build
 rsync -rav --delete ./dist/ "klampok:/home/pilkades/client"
+exit 0
