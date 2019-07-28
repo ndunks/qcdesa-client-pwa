@@ -221,16 +221,15 @@ export default class Result extends Vue implements Vote, VoteResult<VoteCandidat
   }
   getDate(field: 'updated' | 'started', getMax = false): string {
     let hasValues;
-    if (this.locations && (hasValues = this.locations.filter(v => !!v[field])).length) {
+    if (this.locations && (hasValues = this.locations.filter(v => !isNaN(v[field]) && v[field] > 0 )).length) {
       // find minimum or maximum of
       const found = hasValues.reduce(
         (val, v) => (getMax ?
           (val < (v[field] as number)) :
           (val > (v[field] as number))
-        ) ? v[field] as number : val,
-        this.locations[0][field] as number
+        ) ? v[field] as number : (val || v[field]),
+        null
       );
-      console.log('GetDate', field, hasValues, found);
       this[field] = found;
       return new Date(found).toLocaleString()
     }
