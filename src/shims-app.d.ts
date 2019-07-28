@@ -38,16 +38,22 @@ declare global {
   type VoteStatus = 'Selesai' | 'Belum Dimulai' | 'Dihitung'
   type VoteStatusObj<T = any> = { [status in VoteStatus]: T }
   interface VoteCandidate {
+    /** Index */
+    id: number
     name: string
     number: string
     image?: string
   }
   interface VoteLocation {
+    /** Index */
+    id: number
     name: string
     participant: number
   }
 
   interface Vote {
+    /** Index */
+    id: number
     name: string
     desc: string
     hide?: boolean

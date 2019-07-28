@@ -16,27 +16,7 @@
               </v-list-item-content>
             </v-list-item>
             <v-list v-if="sortedResults.length">
-              <v-list-item
-                v-for="(item, index) of sortedResults"
-                :key="item.number"
-              >
-                <v-list-item-avatar :color="color" class="white--text">
-                  {{ index + 1 }}
-                  <!-- <img v-if="item.image" :src="item.image" />
-                <v-icon v-else>mdi-account</v-icon> -->
-                </v-list-item-avatar>
-                <v-list-item-content>
-                  <v-list-item-title v-text="item.name"></v-list-item-title>
-                </v-list-item-content>
-                <v-list-item-avatar>
-                  <v-icon
-                    :v-show="!!item.move"
-                    :color="item.moveColor"
-                    v-text="item.move"
-                  ></v-icon>
-                  {{ item.count }}
-                </v-list-item-avatar>
-              </v-list-item>
+              <ResultBoard :list="sortedResults" :locations="locations"/>
             </v-list>
             <v-card-text v-else-if="status == ''" text-center>
               <v-progress-circular
@@ -141,41 +121,11 @@
                     >
                   </v-list-item-action>
                 </template>
-
-                <v-list-item
-                  v-for="subItem in item.sortedResults"
-                  :key="subItem.name"
-                >
-                  <v-list-item-content>
-                    <v-list-item-title
-                      v-text="subItem.name"
-                    ></v-list-item-title>
-                  </v-list-item-content>
-                  <v-list-item-avatar>
-                    <v-icon
-                      :v-show="!!subItem.move"
-                      :color="subItem.moveColor"
-                      v-text="subItem.move"
-                    ></v-icon>
-                    {{ subItem.count }}
-                  </v-list-item-avatar>
-                </v-list-item>
+                <ResultBoard :list="item.sortedResults" :locationName="item.name"/>
               </v-list-group>
             </v-list>
           </v-card>
         </v-flex>
-        <v-layout wrap mt-5>
-          <v-flex
-            xs12
-            sm6
-            md4
-            xl4
-            v-for="item of sortedResults"
-            :key="item.number"
-          >
-            <ResultCandidate v-bind="item" />
-          </v-flex>
-        </v-layout>
       </v-layout>
       <v-layout v-else align-center justify-center>
         <v-flex xs12 sm6 md4>
@@ -195,11 +145,11 @@ import Navbar from "@/components/Navbar.vue";
 //@ts-ignore
 import ResultDetail from "@/components/ResultDetail.vue";
 //@ts-ignore
-import ResultCandidate from "@/components/ResultCandidate.vue";
+import ResultBoard from "@/components/ResultBoard.vue";
 
 @Component({
   name: "Result",
-  components: { Navbar, ResultDetail, ResultCandidate }
+  components: { Navbar, ResultDetail, ResultBoard }
 })
 export default class Result extends Vue implements Vote, VoteResult<VoteCandidate & VoteReactive> {
   name: string = null as any
@@ -293,12 +243,14 @@ export default class Result extends Vue implements Vote, VoteResult<VoteCandidat
         return this.$router.push('/');
       }
       const vote = list[this.id];
+      vote.id = this.id
       // Set all property from vote, skip some getter
       for (let f in vote) {
         this[f] = vote[f];
       }
       // result total on all TPS
       this.candidates.forEach((v, i) => {
+        v.id = i;
         this.$set(v, 'count', '?');
         this.$set(v, 'pos', v.number);
         this.$set(v, 'move', '');
@@ -312,7 +264,7 @@ export default class Result extends Vue implements Vote, VoteResult<VoteCandidat
         if (typeof (loc.participant) == 'string') {
           loc.participant = parseInt(loc.participant);
         }
-
+        loc.id = ii;
         this.$set(loc, 'started', 0)
         this.$set(loc, 'accepted', 0)
         this.$set(loc, 'declined', 0)
