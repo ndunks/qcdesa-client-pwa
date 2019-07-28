@@ -1,7 +1,12 @@
 <template functional>
   <div class="result-board">
-    <v-dialog eager v-for="(item, index) in props.list" :key="index" max-width="500">
-      <template v-slot:activator="{ on }">
+    <v-dialog
+      v-for="(item, index) in props.list"
+      :key="index"
+      max-width="500"
+      scrollable
+    >
+      <template v-slot:activator="{ on, value }">
         <v-list-item v-on="on">
           <v-list-item-avatar :color="color" class="white--text">
             <span style="position: absolute">{{ index + 1 }}</span>
@@ -22,12 +27,16 @@
           >
         </v-list-item>
       </template>
-      <ResultCandidate v-bind="item" :locationName="props.locationName" :locations="props.locations" />
+      <ResultCandidate
+        v-bind="item"
+        :locationName="props.locationName"
+        :locations="props.locations"
+      />
     </v-dialog>
   </div>
 </template>
 <style>
 .result-board > .v-dialog__container {
-    position: absolute;
+  position: absolute;
 }
 </style>

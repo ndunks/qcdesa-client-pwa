@@ -12,8 +12,8 @@
     </v-list-item>
     <v-list>
       <v-list-item v-for="(item, index) in props.details" :key="index">
-        <v-list-item-title>{{ index }}</v-list-item-title>
-        <v-list-item-subtitle class="text-right">
+        <v-list-item-title style="flex-basis: auto">{{ index }}</v-list-item-title>
+        <v-list-item-subtitle style="flex-basis: auto" class="text-right">
           {{ item }}
         </v-list-item-subtitle>
       </v-list-item>

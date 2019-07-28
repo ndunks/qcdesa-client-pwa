@@ -16,11 +16,13 @@
               </v-list-item-content>
             </v-list-item>
             <v-list v-if="sortedResults.length">
-              <ResultBoard :list="sortedResults" :locations="locations"/>
+              <ResultBoard list="sortedResults" :locations="locations"/>
             </v-list>
-            <v-card-text v-else-if="status == ''" text-center>
+            <v-card-text v-else-if="status == ''" class="text-center" >
               <v-progress-circular
                 :color="color"
+                large
+                size="100"
                 indeterminate
               ></v-progress-circular>
             </v-card-text>
@@ -65,14 +67,14 @@
                 </v-list-item-subtitle>
               </v-list-item>
               <v-list-item>
-                <v-list-item-title>Dimulai</v-list-item-title>
-                <v-list-item-subtitle class="text-right">
+                <v-list-item-title style="flex-basis: auto">Dimulai</v-list-item-title>
+                <v-list-item-subtitle style="flex-basis: auto" class="text-right">
                   <v-chip :color="color" v-text="startedDate"></v-chip>
                 </v-list-item-subtitle>
               </v-list-item>
               <v-list-item>
-                <v-list-item-title>Diupdate</v-list-item-title>
-                <v-list-item-subtitle class="text-right">
+                <v-list-item-title style="flex-basis: auto">Diupdate</v-list-item-title>
+                <v-list-item-subtitle style="flex-basis: auto" class="text-right">
                   <v-chip :color="color" v-text="updatedDate"></v-chip>
                 </v-list-item-subtitle>
               </v-list-item>
