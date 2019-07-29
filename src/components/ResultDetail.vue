@@ -1,6 +1,6 @@
 <template functional>
-  <v-card height="100%" :flat="parent.$vuetify.breakpoint.xs" :tile="parent.$vuetify.breakpoint.xs">
-    <v-list-item two-line>
+  <v-card class="d-flex" style="flex-direction: column" height="100%" :flat="parent.$vuetify.breakpoint.xs" :tile="parent.$vuetify.breakpoint.xs">
+    <v-list-item two-line style="flex: 0">
       <v-list-item-content>
         <v-list-item-title class="headline">
           Statistik Total
@@ -18,9 +18,5 @@
         </v-list-item-subtitle>
       </v-list-item>
     </v-list>
-    <v-divider></v-divider>
-    <v-card-actions>
-      <v-btn text>Lihat Log</v-btn>
-    </v-card-actions>
   </v-card>
 </template>

@@ -11,7 +11,8 @@
       <v-img
         v-if="props.item.image"
         class="grey--text"
-        height="200px"
+        max-height="400px"
+        position="center 20%"
         :src="props.item.image"
       ></v-img>
       <v-list dense>
