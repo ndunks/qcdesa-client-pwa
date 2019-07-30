@@ -30,7 +30,7 @@
     <v-card-actions text-center style="flex: 1 0 auto">
       <v-container fill-height pa-0>
         <v-layout justify-center align-center>
-          <ResultLogs :locations="props.locations" />
+          <ResultLogs :locations="props.locations" :candidates="props.candidates" />
         </v-layout>
       </v-container>
     </v-card-actions>

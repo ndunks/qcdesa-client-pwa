@@ -30,16 +30,16 @@
       <div>
         <v-toolbar tag="div" dense flat class="pa-0">
           <v-toolbar-items>
-            <v-btn small flat color="error" @click="selesai()">
+            <v-btn small elevation="0" color="error" @click="selesai()">
               SELESAI
             </v-btn>
-            <v-btn small flat :disabled="cannotUndo" color="warning" @click="undo()">
+            <v-btn small elevation="0" :disabled="cannotUndo" color="warning" @click="undo()">
               UNDO
             </v-btn>
           </v-toolbar-items>
           <v-spacer></v-spacer>
           <v-toolbar-items>
-            <v-btn small flat @click="goHome()">
+            <v-btn small elevation="0" @click="goHome()">
               go Home
             </v-btn>
           </v-toolbar-items>
@@ -131,7 +131,7 @@ export default class AdminDash extends Vue {
   results: any[] = [];
 
   get locationName(){
-    return this.data ? this.data.locations[parseInt(this.$route.params['id'])].name : ''
+    return this.data ? this.data.locations[parseInt(this.$route.params['tps'])].name : ''
   }
   get declined() {
     return this.resultData ? this.resultData.declined : '?';
@@ -196,7 +196,7 @@ export default class AdminDash extends Vue {
     }
   }
   selesai() {
-    if (confirm('Anda yakin?')) {
+    if (confirm('Anda yakin penghitungan di TPS anda sudah selesai?')) {
       setTimeout(() => {
         if (confirm('Jika ini dinyatakan selesai, maka anda tidak bisa membatalkannya. Yakin Sudah Selesai?')) {
           this.wsSend('SELESAI');
