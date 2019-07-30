@@ -265,6 +265,9 @@ export default class Result extends Vue implements Vote, VoteResult<VoteCandidat
       }
       const vote = list[this.id];
       vote.id = this.id
+      if( vote.hide ){
+        return this.$router.replace('/')
+      }
       // Set all property from vote, skip some getter
       for (let f in vote) {
         this[f] = vote[f];
