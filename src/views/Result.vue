@@ -86,7 +86,7 @@
           </v-card>
         </v-flex>
         <v-flex xs12 sm6 md4 xl4>
-          <ResultDetail :details="details" />
+          <ResultDetail :locations="locations" :details="details" />
         </v-flex>
         <v-flex xs12 sm6 md4 xl4>
           <v-card :flat="$vuetify.breakpoint.xs" :tile="$vuetify.breakpoint.xs">

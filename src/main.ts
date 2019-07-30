@@ -1,3 +1,4 @@
+import 'babel-polyfill'
 import Vue from 'vue'
 import { VApp } from 'vuetify/lib';
 import router from './router'
@@ -6,6 +7,7 @@ import { Api } from './app/api';
 //@ts-ignore
 import ResultCandidate from "@/components/ResultCandidate.vue";
 import ListSponsor from "@/components/ListSponsor.vue";
+import ResultLogs from "@/components/ResultLogs.vue";
 
 Vue.config.productionTip = false
 Vue.use(Api, {
@@ -16,6 +18,7 @@ Vue.use(Api, {
 // Register GLobal Dialog
 Vue.component('ResultCandidate', ResultCandidate)
 Vue.component('ListSponsor', ListSponsor)
+Vue.component('ResultLogs', ResultLogs)
 
 new Vue({
   router,

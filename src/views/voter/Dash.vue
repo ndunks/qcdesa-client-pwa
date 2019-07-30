@@ -7,9 +7,10 @@
         :key="index"
         :color="connected ? 'primary' : 'grey'"
         v-ripple
-        class="d-flex align-center pa-3"
+        class="d-flex align-center pa-1"
         @click="vote(index)"
         :style="{ backgroundImage: `url(${item.image})` }"
+        tile
       >
         <div class="count white green--text">{{ item.count }}</div>
         <div class="title">{{ item.number }}. {{ item.name }}</div>
@@ -18,29 +19,32 @@
         dark
         color="error"
         v-ripple
-        class="d-flex align-center pa-3"
+        class="d-flex align-center pa-1 justify-center align-center"
+        style="flex: 0 1 auto;"
+        tile
         @click="vote(-1)"
       >
         <div class="title">TIDAK SAH</div>
-        <div class="count">{{ declined }}</div>
+        <div class="count" style="padding: 5px; min-width: auto">{{ declined }}</div>
       </v-sheet>
       <div>
-        <v-toolbar dense>
+        <v-toolbar tag="div" dense flat class="pa-0">
           <v-toolbar-items>
-            <v-btn color="error" @click="selesai()">
+            <v-btn small flat color="error" @click="selesai()">
               SELESAI
             </v-btn>
-            <v-btn :disabled="cannotUndo" color="warning" @click="undo()">
+            <v-btn small flat :disabled="cannotUndo" color="warning" @click="undo()">
               UNDO
             </v-btn>
           </v-toolbar-items>
           <v-spacer></v-spacer>
           <v-toolbar-items>
-            <v-btn @click="goHome()">
+            <v-btn small flat @click="goHome()">
               go Home
             </v-btn>
           </v-toolbar-items>
         </v-toolbar>
+        <div class="pt-1 text-center" v-text="locationName"></div>
       </div>
     </div>
 
@@ -74,9 +78,10 @@
 
 .voter > * {
   flex: 1;
-  margin: 5px 10px;
+  margin: 3px 0px;
   background-position: right center;
   background-size: auto 100%;
+  padding: 0px;
 }
 
 .voter > *:last-child {
@@ -92,6 +97,11 @@
   padding: 5%;
   margin-right: 2%;
   align-items: center;
+  min-width: 67px;
+  justify-content: center;
+}
+.voter .v-toolbar__content {
+  padding: 0px;
 }
 </style>
 
@@ -120,7 +130,9 @@ export default class AdminDash extends Vue {
   isFinished = false;
   results: any[] = [];
 
-
+  get locationName(){
+    return this.data ? this.data.locations[parseInt(this.$route.params['id'])].name : ''
+  }
   get declined() {
     return this.resultData ? this.resultData.declined : '?';
   }

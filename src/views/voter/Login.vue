@@ -32,7 +32,11 @@
                 autocomplete
                 type="password"
                 required
-              ></v-text-field>
+              >
+              <template slot="append-outer">
+                <v-btn text small @click="submit">OK</v-btn>
+              </template>
+              </v-text-field>
             </v-form>
           </v-card-text>
         </v-card>
