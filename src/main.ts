@@ -8,23 +8,26 @@ import { Api } from './app/api';
 import ResultCandidate from "@/components/ResultCandidate.vue";
 import ListSponsor from "@/components/ListSponsor.vue";
 import ResultLogs from "@/components/ResultLogs.vue";
+if (!window['fetch']) {
+  console.log('Using Fetch polyfills')
+  require('whatwg-fetch');
+}
+  Vue.config.productionTip = false
+  Vue.use(Api, {
+    url: process.env.VUE_APP_API_URL,
+    direct_url: process.env.VUE_APP_API_DIRECT_URL
+  })
 
-Vue.config.productionTip = false
-Vue.use(Api, {
-  url: process.env.VUE_APP_API_URL,
-  direct_url: process.env.VUE_APP_API_DIRECT_URL
-})
+  // Register GLobal Dialog
+  Vue.component('ResultCandidate', ResultCandidate)
+  Vue.component('ListSponsor', ListSponsor)
+  Vue.component('ResultLogs', ResultLogs)
 
-// Register GLobal Dialog
-Vue.component('ResultCandidate', ResultCandidate)
-Vue.component('ListSponsor', ListSponsor)
-Vue.component('ResultLogs', ResultLogs)
-
-new Vue({
-  router,
-  vuetify,
-  render: h => h(VApp, [h('RouterView')]),
-  mounted: () => {
-    loading.counter -= 1;
-  }
-}).$mount('#app')
+  new Vue({
+    router,
+    vuetify,
+    render: h => h(VApp, [h('RouterView')]),
+    mounted: () => {
+      loading.counter -= 1;
+    }
+  }).$mount('#app')
