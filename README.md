@@ -1,4 +1,16 @@
-# client
+# QC Desa Client
+
+    Aplikasi client untuk browser menggunakan VueJS
+
+## Contoh deploy.sh script
+
+``` bash
+#!/bin/bash
+
+yarn build
+rsync -rav --delete ./dist/ "server:/home/user/client"
+exit 0
+```
 
 ## Project setup
 ```
