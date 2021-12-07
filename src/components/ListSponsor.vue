@@ -1,20 +1,24 @@
 <template functional>
   <v-list subheader color="transparent">
-    <v-subheader>
-      Aplikasi ini didukung oleh:
-    </v-subheader>
-    <v-list-item v-show="!props.hide"
-      href="https://www.facebook.com/klampokchild?ref=qc.kiraboshi.co.id"
-      target="_blank"
-    >
+    <v-subheader> Aplikasi ini didukung oleh: </v-subheader>
+    <v-list-item href="https://www.amikompurwokerto.ac.id" target="_blank">
       <v-list-item-avatar>
         <img
-          src="https://scontent-sin2-2.xx.fbcdn.net/v/t1.0-1/p160x160/1150924_10204959966338835_6533470334909406723_n.jpg?_nc_cat=101&_nc_oc=AQkUc6I7ImI5zhtOwWnE4Dt2p9u0KL9SjCUduftqxYZ_WkgsVnZ9gtMeVzNPMrMmeX4&_nc_ht=scontent-sin2-2.xx&oh=f08b397bead6fa750b4483c76f19d519&oe=5DDAFD95"
+          src="https://kadowisudaku.com/wp-content/uploads/2020/04/Universitas-Amikom-Purwokerto.png"
         />
       </v-list-item-avatar>
       <v-list-item-content>
-        <v-list-item-title>Mochamad Arifin</v-list-item-title>
-        <v-list-item-subtitle>Programmer</v-list-item-subtitle>
+        <v-list-item-title>Universitas Amikom Purwokerto</v-list-item-title>
+        <v-list-item-subtitle>Sponsor</v-list-item-subtitle>
+      </v-list-item-content>
+    </v-list-item>
+    <v-list-item href="https://www.uhb.ac.id" target="_blank">
+      <v-list-item-avatar>
+        <img src="https://www.uhb.ac.id/site/assets/images/logo_uhb140.png" />
+      </v-list-item-avatar>
+      <v-list-item-content>
+        <v-list-item-title>Universitas Harapan Bangsa</v-list-item-title>
+        <v-list-item-subtitle>Sponsor</v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
     <v-list-item
@@ -23,7 +27,7 @@
     >
       <v-list-item-avatar>
         <img
-          src="https://scontent-sin2-2.xx.fbcdn.net/v/t1.0-1/c65.0.200.200a/p200x200/65191082_347278419535364_5421131261726949376_n.png?_nc_cat=110&_nc_oc=AQldR9KObyigCXoOEVayqWZj8nMuqbhBVilpWZV0C7qX-4hxUMY3g9ExqcoN-mGCwFM&_nc_ht=scontent-sin2-2.xx&oh=71b548ddcd2012f603bf2c7bc5d3358f&oe=5DE73F43"
+          src="https://scontent.fjog3-1.fna.fbcdn.net/v/t1.6435-9/83262982_502937553969449_3690972766787338240_n.jpg?_nc_cat=107&ccb=1-5&_nc_sid=09cbfe&_nc_ohc=gR_B2oJNKj0AX8HV9MV&_nc_ht=scontent.fjog3-1.fna&oh=207402f1c5ee127ca2f77b93f12f0dac&oe=61D33CA7"
         />
       </v-list-item-avatar>
       <v-list-item-content>
@@ -31,15 +35,32 @@
         <v-list-item-subtitle>Sponsor</v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
-    <v-list-item href="https://www.facebook.com/kiraboshilpk" target="_blank">
+    <v-list-item
+      v-show="!props.hide"
+      href="https://www.facebook.com/kiraboshilpk"
+      target="_blank"
+    >
       <v-list-item-avatar>
         <img
-          src="https://scontent-sin2-2.xx.fbcdn.net/v/t1.0-1/p160x160/47573270_2106123336368613_7451100197871943680_n.jpg?_nc_cat=106&_nc_oc=AQmOVJ05S6GfdoT3guLIX_lMkDKu_LWT4RzMzadbgEv5pWFTsGxWFY1lpJWTACo9u_0&_nc_ht=scontent-sin2-2.xx&oh=caa3db0bd050495785e7b0545327e69e&oe=5DEA6C33"
+          src="https://scontent.fjog3-1.fna.fbcdn.net/v/t1.6435-9/47573270_2106123336368613_7451100197871943680_n.jpg?_nc_cat=106&ccb=1-5&_nc_sid=09cbfe&_nc_ohc=_Nc5acjrMsgAX9gK3mr&_nc_ht=scontent.fjog3-1.fna&oh=63a07c00cae26c940764b1ddaefa0250&oe=61D456A6"
         />
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title>LPK Kiraboshi</v-list-item-title>
         <v-list-item-subtitle>Sponsor</v-list-item-subtitle>
+      </v-list-item-content>
+    </v-list-item>
+    <v-list-item
+      v-show="!props.hide"
+      href="https://github.com/ndunks"
+      target="_blank"
+    >
+      <v-list-item-avatar>
+        <img src="https://avatars.githubusercontent.com/u/5500313" />
+      </v-list-item-avatar>
+      <v-list-item-content>
+        <v-list-item-title>Mochamad Arifin</v-list-item-title>
+        <v-list-item-subtitle>Programmer</v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
   </v-list>
